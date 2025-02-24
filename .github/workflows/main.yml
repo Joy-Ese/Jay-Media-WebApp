@@ -24,12 +24,12 @@ jobs:
 
       - name: Install Angular dependencies
         run: |
-          cd frontend
+          cd frontend/JayMedia.Client
           npm install
 
       - name: Build Angular app
         run: |
-          cd frontend
+          cd frontend/JayMedia.Client
           npm run build --prod
 
       # 🔹 Set up .NET Core for backend
