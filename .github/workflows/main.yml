@@ -65,8 +65,8 @@ jobs:
 
       - name: Build and tag Docker images
         run: |
-          docker build -t joyeseosa/frontend:latest ./frontend
-          docker build -t joyeseosa/backend:latest ./backend
+          docker build -t joyeseosa/frontend:latest ./frontend/JayMedia.Client
+          docker build -t joyeseosa/backend:latest ./backend/JayMedia.Api
 
       - name: Push Docker images
         run: |
