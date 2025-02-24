@@ -63,10 +63,13 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Debug file structure
+        run: ls -R
+
       - name: Build and tag Docker images
         run: |
-          docker build -t joyeseosa/frontend:latest ./frontend/JayMedia.Client
-          docker build -t joyeseosa/backend:latest ./backend/JayMedia.Api
+          docker build -t joyeseosa/frontend:latest ./frontend/
+          docker build -t joyeseosa/backend:latest ./backend/
 
       - name: Push Docker images
         run: |
