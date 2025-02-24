@@ -1,0 +1,74 @@
+name: CI/CD for JayMedia
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 🔹 Set up Node.js for Angular
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+
+      - name: Install Angular dependencies
+        run: |
+          cd frontend
+          npm install
+
+      - name: Build Angular app
+        run: |
+          cd frontend
+          npm run build --prod
+
+      # 🔹 Set up .NET Core for backend
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.0'
+
+      - name: Restore .NET dependencies
+        run: |
+          cd backend
+          dotnet restore
+
+      - name: Build .NET backend
+        run: |
+          cd backend
+          dotnet build --configuration Release --no-restore
+
+      - name: Run backend tests
+        run: |
+          cd backend
+          dotnet test --no-restore --verbosity normal
+
+      # 🔹 Build and Push Docker images
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.dckr_pat_MkzAb-HSN9JQ2UaKT_HeRWkwc3o }}" | docker login -u "${{ secrets.joyeseosa }}" --password-stdin
+
+      - name: Build and tag Docker images
+        run: |
+          docker build -t joyeseosa/frontend:latest ./frontend
+          docker build -t joyeseosa/backend:latest ./backend
+
+      - name: Push Docker images
+        run: |
+          docker push joyeseosa/frontend:latest
+          docker push joyeseosa/backend:latest
+
+      # 🔹 Deploy using Docker Compose (if needed)
+      - name: Deploy with Docker Compose
+        run: |
+          docker-compose down
+          docker-compose up -d --build
