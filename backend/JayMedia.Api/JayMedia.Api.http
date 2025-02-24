@@ -1,0 +1,6 @@
+@JayMedia.Api_HostAddress = http://localhost:5090
+
+GET {{JayMedia.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

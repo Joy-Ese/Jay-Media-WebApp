@@ -1,0 +1,40 @@
+# Please refer https://aka.ms/HTTPSinContainer on how to setup an https developer certificate for your ASP.NET Core service.
+
+services:
+  jaymediaclient:
+    image: jaymediaclient
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    ports:
+      - 4200:4200
+    depends_on:
+      - jaymediaapi
+
+  jaymediaapi:
+    image: jaymediaapi
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - 5090:5090
+      - 7000:7000
+    depends_on:
+      - database
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=database;Port=5432;Username=postgres;Password=Joyeseosa;Database=JayMediaDB
+
+  database:
+    image: postgres:17
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Joyeseosa
+      POSTGRES_DB: JayMediaDB
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
