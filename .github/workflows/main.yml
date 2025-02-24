@@ -65,16 +65,21 @@ jobs:
 
       - name: Build and tag Docker images
         run: |
-          docker build -t joyeseosa/frontend:latest ./frontend
-          docker build -t joyeseosa/backend:latest ./backend
+          docker build --no-cache -t joyeseosa/frontend:latest ./frontend
+          docker build --no-cache -t joyeseosa/backend:latest ./backend
 
       - name: Push Docker images
         run: |
           docker push joyeseosa/frontend:latest
           docker push joyeseosa/backend:latest
 
-      # 🔹 Deploy using Docker Compose (if needed)
+      # 🔹 Deploy using Docker Compose
       - name: Deploy with Docker Compose
         run: |
           docker-compose down || true
           docker-compose up -d --build
+
+      # 🔹 Debugging step to check if directories exists
+      - name: List files in the all directory
+        run: |
+          ls -R
