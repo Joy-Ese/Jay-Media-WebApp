@@ -73,11 +73,17 @@ jobs:
           docker push joyeseosa/frontend:latest
           docker push joyeseosa/backend:latest
 
+      # 🔹 Ensure Docker and Docker Compose are installed
+      - name: Install Docker and Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker docker-compose-plugin
+
       # 🔹 Deploy using Docker Compose
       - name: Deploy with Docker Compose
         run: |
-          docker-compose down || true
-          docker-compose up -d --build
+          docker compose down || true
+          docker compose up -d --build
 
       # 🔹 Debugging step to check if directories exists
       - name: List files directory check
