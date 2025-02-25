@@ -8,21 +8,21 @@ ENV ASPNETCORE_URLS=http://+:5090
 # Build stage
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG configuration=Release
-WORKDIR /src
+WORKDIR /backend
 
 # Copy the project file and restore dependencies
-COPY JayMedia.Api/JayMedia.Api.csproj backend/JayMedia.Api/
-WORKDIR /src/backend/JayMedia.Api
+COPY backend/JayMedia.Api/JayMedia.Api.csproj JayMedia.Api/
+WORKDIR /backend/JayMedia.Api
 RUN dotnet restore "JayMedia.Api.csproj"
 
 # Copy the entire project and build the app
-COPY backend/JayMedia.Api backend/JayMedia.Api/
+COPY backend/JayMedia.Api/ .
 WORKDIR /src/backend/JayMedia.Api
 RUN dotnet build "JayMedia.Api.csproj" -c $configuration -o /app/build
 
 # Publish the build
 FROM build AS publish
-ARG configuration=Debug
+ARG configuration=Release
 RUN dotnet publish "JayMedia.Api.csproj" -c $configuration -o /app/publish /p:UseAppHost=false
 
 # Runtime stage
