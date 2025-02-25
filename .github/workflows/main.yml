@@ -80,6 +80,6 @@ jobs:
           docker-compose up -d --build
 
       # 🔹 Debugging step to check if directories exists
-      - name: List files directory to see
+      - name: List files directory
         run: |
           ls -R
