@@ -11,8 +11,8 @@ ARG configuration=Release
 WORKDIR /src
 
 # Copy the project file and restore dependencies (use forward slashes `/` for Linux compatibility)
-COPY backend/JayMedia.Api/JayMedia.Api.csproj backend/JayMedia.Api/
-RUN dotnet restore backend/JayMedia.Api/JayMedia.Api.csproj
+COPY JayMedia.Api/JayMedia.Api.csproj JayMedia.Api/
+RUN dotnet restore JayMedia.Api/JayMedia.Api.csproj
 
 # Copy the entire project and build the app
 COPY . .

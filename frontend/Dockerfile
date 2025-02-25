@@ -1,7 +1,7 @@
 FROM node:20-alpine AS build
 WORKDIR /app
 
-COPY frontend/JayMedia.Client/package.json frontend/JayMedia.Client/package-lock.json ./
+COPY JayMedia.Client/package.json JayMedia.Client/package-lock.json ./
 
 RUN npm install
 
