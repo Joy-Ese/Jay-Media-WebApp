@@ -63,10 +63,6 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Debug file paths
-        run: |
-          if [ -d frontend/JayMedia.Client ]; then echo "Folder exists"; else echo "Folder not found"; fi
-
       - name: Build and tag Docker images
         run: |
           docker build --no-cache -t joyeseosa/frontend:latest ./frontend
