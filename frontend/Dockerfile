@@ -1,12 +1,12 @@
 FROM node:20-alpine AS build
 WORKDIR /app
 
-COPY frontend/JayMedia.Client/package.json frontend/JayMedia.Client/package-lock.json ./
+COPY JayMedia.Client/package.json JayMedia.Client/package-lock.json ./
 
 RUN npm install
 
 # Copy the entire Angular project
-COPY frontend/JayMedia.Client ./
+COPY JayMedia.Client ./
 
 # Switch to the correct Angular workspace directory
 WORKDIR /app

@@ -1,0 +1,101 @@
+name: CI/CD for JayMedia
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 🔹 Set up Node.js for Angular
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+
+      - name: Install Angular dependencies
+        run: |
+          cd frontend/JayMedia.Client
+          npm ci
+
+      - name: Install Angular CLI globally
+        run: npm install -g @angular/cli
+
+      - name: Build Angular app
+        run: |
+          cd frontend/JayMedia.Client
+          npx ng build
+
+      # 🔹 Set up .NET Core for backend
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.0'
+
+      - name: Restore .NET dependencies
+        run: |
+          cd backend/JayMedia.Api
+          dotnet restore
+
+      - name: Build .NET backend
+        run: |
+          cd backend/JayMedia.Api
+          dotnet build --configuration Release --no-restore
+
+      - name: Run backend tests
+        run: |
+          cd backend/JayMedia.Api
+          dotnet test --no-restore --verbosity normal
+
+      # 🔹 Build and Push Docker images
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and tag Docker images
+        run: |
+          docker build --no-cache -t joyeseosa/frontend:latest ./frontend
+          docker build --no-cache -t joyeseosa/backend:latest ./backend
+
+      - name: Push Docker images
+        run: |
+          docker push joyeseosa/frontend:latest
+          docker push joyeseosa/backend:latest
+
+      # 🔹 Set up Docker
+      - name: Install Docker
+        uses: docker/setup-buildx-action@v2
+
+      # 🔹 Set up Docker Compose
+      - name: Install Docker Compose
+        run: |
+          DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker}
+          mkdir -p $DOCKER_CONFIG/cli-plugins
+          curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 -o $DOCKER_CONFIG/cli-plugins/docker-compose
+          chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
+
+      # 🔹 Check Docker Compose Version
+      - name: Check Docker Compose Version
+        run: docker compose version
+
+      # 🔹 Deploy using Docker Compose
+      - name: Deploy with Docker Compose
+        run: |
+          docker compose down || true
+          docker compose up -d --build
+
+      # 🔹 Debugging step to check if directories exists
+      - name: List files directory
+        run: |
+          ls -R
