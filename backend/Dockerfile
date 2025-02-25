@@ -12,8 +12,8 @@ WORKDIR /app
 
 # Copy the project file and restore dependencies
 COPY JayMedia.Api/JayMedia.Api.csproj JayMedia.Api/
-WORKDIR /backend/JayMedia.Api
-# WORKDIR /app/JayMedia.Api
+# WORKDIR /backend/JayMedia.Api
+WORKDIR /app/JayMedia.Api
 RUN dotnet restore "JayMedia.Api.csproj"
 
 # Copy the entire project and build the app
