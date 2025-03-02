@@ -1,0 +1,40 @@
+<header class="sticky-top">
+  <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #1a365d;">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center" routerLink="/home">
+        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 200 200">
+          <!-- Background circle -->
+          <circle cx="100" cy="100" r="90" fill="#1a365d" />
+          <!-- White inner circle -->
+          <circle cx="100" cy="100" r="80" fill="white" />
+          <!-- J and M letters -->
+          <path d="M50 50 L80 50 L80 120 Q80 140, 60 140 L60 140 Q80 140, 100 140 L100 140 L100 50 L100 140 M100 50 L120 95 L140 50 L140 140" 
+            fill="none" stroke="#1a365d" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
+          <!-- Orange dots -->
+          <circle cx="50" cy="50" r="6" fill="#ff9900" />
+          <circle cx="140" cy="140" r="6" fill="#ff9900" />
+        </svg>
+        <span class="ms-2">Jay Media</span>
+      </a>
+
+      <button class="navbar-toggler" type="button" (click)="toggleMenu()" aria-controls="navbarNav" 
+      [attr.aria-expanded]="!isMenuCollapsed" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" [class.show]="!isMenuCollapsed" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a>
+          </li>
+        </ul>
+
+        <div class="d-flex">
+          <a class="btn btn-outline-light me-2" routerLink="/login">Login</a>
+          <a class="btn" routerLink="/register" style="background-color: #ff9900; color: white;">Register</a>
+        </div>
+      </div>
+
+    </div>
+  </nav>
+</header>
