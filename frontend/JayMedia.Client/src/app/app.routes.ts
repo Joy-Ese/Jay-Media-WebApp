@@ -6,7 +6,8 @@ import { RegisterComponent } from './pages/register/register.component';
 export const routes: Routes = [
   {
     path: "",
-  redirectTo: "home",
+  redirectTo: "register",
+  // change this back to home.... this is just to be able to view the register page on app reload
   pathMatch: "full"
   },
   {
