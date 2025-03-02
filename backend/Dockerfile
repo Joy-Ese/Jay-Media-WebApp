@@ -11,22 +11,22 @@ ARG configuration=Release
 WORKDIR /app
 
 # Copy the entire solution and project file and restore dependencies
-COPY JayMedia.sln ./
-COPY JayMedia.Api/JayMedia.Api.csproj JayMedia.Api/
-COPY JayMedia.Models/JayMedia.Models.csproj JayMedia.Models/
-COPY JayMedia.Services/JayMedia.Services.csproj JayMedia.Services/
+COPY JayMedia.sln .
+COPY backend/JayMedia.Api/JayMedia.Api.csproj backend/JayMedia.Api/
+COPY backend/JayMedia.Models/JayMedia.Models.csproj backend/JayMedia.Models/
+COPY backend/JayMedia.Services/JayMedia.Services.csproj backend/JayMedia.Services/
 # WORKDIR /app/JayMedia.Api
 # RUN dotnet restore "JayMedia.Api.csproj"
-RUN dotnet restore JayMedia.sln
+RUN dotnet restore
 
 # Copy the entire project and build the app
-# COPY JayMedia.Api ./
-RUN dotnet build JayMedia.sln -c $configuration -o /app/build
+COPY backend/. ./backend/
+RUN dotnet build backend/JayMedia.Api/JayMedia.Api.csproj -c $configuration -o /app/build
 
 # Publish the build
 FROM build AS publish
 ARG configuration=Release
-RUN dotnet publish "JayMedia.Api.csproj" -c $configuration -o /app/publish /p:UseAppHost=false
+RUN dotnet publish backend/JayMedia.Api/JayMedia.Api.csproj -c $configuration -o /app/publish /p:UseAppHost=false
 
 # Runtime stage
 FROM base AS final
