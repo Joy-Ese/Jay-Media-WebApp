@@ -1,1 +1,70 @@
-<p>login works!</p>
+<div class="auth-container">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-6">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-4 p-md-5">
+            <div class="text-center mb-4">
+              <h2 class="auth-title">Welcome Back</h2>
+              <p class="auth-subtitle">Login to your account</p>
+            </div>
+
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+              <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input 
+                  type="text"
+                  class="form-control form-control-sm" 
+                  id="username" 
+                  formControlName="username"
+                  [class.is-invalid]="loginForm.get('username')?.invalid && loginForm.get('username')?.touched"
+                >
+                <div class="invalid-feedback" *ngIf="loginForm.get('username')?.errors?.['required'] && loginForm.get('username')?.touched">
+                  Username is required
+                </div>
+                <div class="invalid-feedback" *ngIf="loginForm.get('username')?.errors?.['minlength'] && loginForm.get('username')?.touched">
+                  Username must be at least 2 characters
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center">
+                  <label for="password" class="form-label">Password</label>
+                  <a routerLink="/forgot-password" class="small text-decoration-none">Forgot Password?</a>
+                </div>
+                <input 
+                  type="password" 
+                  class="form-control form-control-sm" 
+                  id="password" 
+                  formControlName="password"
+                  [class.is-invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+                >
+                <div class="invalid-feedback" *ngIf="loginForm.get('password')?.errors?.['required'] && loginForm.get('password')?.touched">
+                  Password is required
+                </div>
+                <div class="invalid-feedback" *ngIf="loginForm.get('password')?.errors?.['minlength'] && loginForm.get('password')?.touched">
+                  Password must be at least 6 characters
+                </div>
+              </div>
+
+              <div class="mb-4 form-check">
+                <input type="checkbox" class="form-check-input" id="rememberMe" formControlName="rememberMe">
+                <label class="form-check-label" for="rememberMe">Remember me</label>
+              </div>
+
+              <button type="submit" class="btn btn-lg w-100 mb-3 login-btn">Login</button>
+            </form>
+          </div>
+
+
+        </div>
+
+
+      </div>
+
+
+    </div>
+
+
+  </div>
+</div>
