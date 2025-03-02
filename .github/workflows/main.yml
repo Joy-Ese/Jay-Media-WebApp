@@ -41,19 +41,22 @@ jobs:
         with:
           dotnet-version: '9.0'
 
+      # 🔹 Restore dependencies for the entire solution
       - name: Restore .NET dependencies
         run: |
-          cd backend/JayMedia.Api
-          dotnet restore
+          cd JayMedia  # Move into the parent directory containing the solution
+          dotnet restore JayMedia.sln  # Restore dependencies at the solution level
 
+      # 🔹 Build the entire .NET solution not just the API
       - name: Build .NET backend
         run: |
-          cd backend/JayMedia.Api
-          dotnet build --configuration Release --no-restore
+          cd JayMedia
+          dotnet build JayMedia.sln --configuration Release --no-restore
 
+      # 🔹 Run tests for the entire solution
       - name: Run backend tests
         run: |
-          cd backend/JayMedia.Api
+          cd JayMedia
           dotnet test --no-restore --verbosity normal
 
       # 🔹 Build and Push Docker images
