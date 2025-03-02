@@ -30,16 +30,6 @@
   color: white;
 }
 
-.login-link {
-  color: #1a365d;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.login-link:hover {
-  text-decoration: underline;
-}
-
 .terms-link {
   color: #ff9900;
   text-decoration: none;
