@@ -1,0 +1,12 @@
+.hover-opacity-100:hover {
+  opacity: 1 !important;
+}
+
+h5 {
+  color: #ff9900;
+  margin-bottom: 1rem;
+}
+
+hr {
+  height: 1px;
+}
