@@ -44,7 +44,9 @@ jobs:
       # 🔹 Restore dependencies for the entire solution
       - name: Restore .NET dependencies
         run: |
-          cd JayMedia  # Move into the parent directory containing the solution
+          # Checking we're in the correct root directory
+          ls -al  # List directories
+          cd JayMedia  # Move into the parent directory
           dotnet restore JayMedia.sln  # Restore dependencies at the solution level
 
       # 🔹 Build the entire .NET solution not just the API
@@ -97,8 +99,3 @@ jobs:
         run: |
           docker compose down || true
           docker compose up -d --build
-
-      # 🔹 Debugging step to check if directories exists
-      - name: List files directory
-        run: |
-          ls -R
