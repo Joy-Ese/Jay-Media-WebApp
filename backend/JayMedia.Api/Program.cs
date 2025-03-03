@@ -1,5 +1,7 @@
 global using Microsoft.EntityFrameworkCore;
 using JayMedia.Data.Data;
+using JayMedia.Services.Interfaces;
+using JayMedia.Services.Services;
 using NLog;
 using NLog.Web;
 
@@ -24,7 +26,7 @@ try
   options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
   // Services are injected here to be available app wide
-
+  builder.Services.AddScoped<IAuth, AuthService>();
 
   builder.Services.AddEndpointsApiExplorer();
   builder.Services.AddSwaggerGen();
@@ -49,23 +51,29 @@ try
 
   app.UseHttpsRedirection();
 
-  var summaries = new[]
-  {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-  };
+  app.UseRouting();
 
-  app.MapGet("/weatherforecast", () =>
-  {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-      new WeatherForecast
-      (
-        DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-        Random.Shared.Next(-20, 55),
-        summaries[Random.Shared.Next(summaries.Length)]
-      ))
-      .ToArray();
-    return forecast;
-  }).WithName("GetWeatherForecast");
+  app.UseAuthorization();
+
+  app.MapControllers();
+
+  // var summaries = new[]
+  // {
+  //   "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
+  // };
+
+  // app.MapGet("/weatherforecast", () =>
+  // {
+  //   var forecast =  Enumerable.Range(1, 5).Select(index =>
+  //     new WeatherForecast
+  //     (
+  //       DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+  //       Random.Shared.Next(-20, 55),
+  //       summaries[Random.Shared.Next(summaries.Length)]
+  //     ))
+  //     .ToArray();
+  //   return forecast;
+  // }).WithName("GetWeatherForecast");
 
   app.Run();
 }
@@ -82,7 +90,7 @@ finally
 }
 
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-  public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+// record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+// {
+//   public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+// }
