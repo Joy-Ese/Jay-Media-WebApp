@@ -12,6 +12,7 @@ WORKDIR /app
 
 # Copy the entire solution and project file and restore dependencies
 COPY JayMedia.Api/JayMedia.Api.csproj JayMedia.Api/
+COPY JayMedia.Data/JayMedia.Data.csproj JayMedia.Data/
 COPY JayMedia.Models/JayMedia.Models.csproj JayMedia.Models/
 COPY JayMedia.Services/JayMedia.Services.csproj JayMedia.Services/
 RUN dotnet restore JayMedia.Api/JayMedia.Api.csproj

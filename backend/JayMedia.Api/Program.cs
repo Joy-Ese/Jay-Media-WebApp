@@ -1,5 +1,5 @@
 global using Microsoft.EntityFrameworkCore;
-global using JayMedia.Api.Data;
+using JayMedia.Data.Data;
 using NLog;
 using NLog.Web;
 
