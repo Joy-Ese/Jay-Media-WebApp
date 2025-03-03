@@ -1,5 +1,5 @@
 using System;
-using JayMedia.Api.Data;
+using JayMedia.Data.Data;
 using JayMedia.Services.Interfaces;
 
 namespace JayMedia.Services.Services;

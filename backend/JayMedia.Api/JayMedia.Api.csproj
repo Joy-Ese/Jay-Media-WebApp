@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\JayMedia.Data\JayMedia.Data.csproj" />
     <ProjectReference Include="..\JayMedia.Models\JayMedia.Models.csproj" />
     <ProjectReference Include="..\JayMedia.Services\JayMedia.Services.csproj" />
   </ItemGroup>

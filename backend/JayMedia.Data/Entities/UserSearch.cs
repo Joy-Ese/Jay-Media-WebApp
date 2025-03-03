@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace JayMedia.Models.Entities;
+namespace JayMedia.Data.Entities;
 
 public class UserSearch
 {
