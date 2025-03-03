@@ -19,7 +19,7 @@ namespace JayMedia.Api
       _authService = authService;
     }
 
-    [HttpPost("SignUp")]
+    [HttpPost("Register")]
     public async Task<IActionResult> Register([FromBody] RegisterDto request)
     {
       var result = await _authService.Register(request);
