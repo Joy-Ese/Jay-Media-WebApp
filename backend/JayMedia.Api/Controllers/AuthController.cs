@@ -1,4 +1,5 @@
 using JayMedia.Data.Data;
+using JayMedia.Models.DTOs;
 using JayMedia.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,12 +19,12 @@ namespace JayMedia.Api
       _authService = authService;
     }
 
-    // [HttpPost("SignUp")]
-    // public async Task<IActionResult> Register([FromBody] UserSignUpDto request)
-    // {
-    //   var result = await _authService.Register(request);
-    //   return Ok(result);
-    // }
+    [HttpPost("SignUp")]
+    public async Task<IActionResult> Register([FromBody] RegisterDto request)
+    {
+      var result = await _authService.Register(request);
+      return Ok(result);
+    }
 
 
   }

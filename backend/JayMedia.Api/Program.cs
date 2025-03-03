@@ -1,5 +1,7 @@
 global using Microsoft.EntityFrameworkCore;
 using JayMedia.Data.Data;
+using JayMedia.Services.Interfaces;
+using JayMedia.Services.Services;
 using NLog;
 using NLog.Web;
 
@@ -24,7 +26,7 @@ try
   options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
   // Services are injected here to be available app wide
-
+  builder.Services.AddScoped<IAuth, AuthService>();
 
   builder.Services.AddEndpointsApiExplorer();
   builder.Services.AddSwaggerGen();
