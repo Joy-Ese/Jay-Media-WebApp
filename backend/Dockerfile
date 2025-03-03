@@ -15,18 +15,16 @@ COPY JayMedia.sln .
 COPY backend/JayMedia.Api/JayMedia.Api.csproj backend/JayMedia.Api/
 COPY backend/JayMedia.Models/JayMedia.Models.csproj backend/JayMedia.Models/
 COPY backend/JayMedia.Services/JayMedia.Services.csproj backend/JayMedia.Services/
-# WORKDIR /app/JayMedia.Api
-# RUN dotnet restore "JayMedia.Api.csproj"
 RUN dotnet restore
 
 # Copy the entire project and build the app
 COPY backend/. ./backend/
-RUN dotnet build backend/JayMedia.Api/JayMedia.Api.csproj -c $configuration -o /app/build
+RUN dotnet build JayMedia.Api/JayMedia.Api.csproj -c $configuration -o /app/build
 
 # Publish the build
 FROM build AS publish
 ARG configuration=Release
-RUN dotnet publish backend/JayMedia.Api/JayMedia.Api.csproj -c $configuration -o /app/publish /p:UseAppHost=false
+RUN dotnet publish JayMedia.Api/JayMedia.Api.csproj -c $configuration -o /app/publish /p:UseAppHost=false
 
 # Runtime stage
 FROM base AS final
