@@ -1,1 +1,72 @@
-<p>home works!</p>
+<div class="home-container">
+  <div class="search-section">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+          <h1 class="text-center mb-4">Find Open-Licensed Media Here</h1>
+          <p class="text-center mb-5 lead">Access thousands of free images, audios and more for your usage</p>
+
+          <div class="search-container">
+            <form (ngSubmit)="onSearch()">
+              <div class="input-group input-group-lg shadow">
+                <input 
+                  type="text"
+                  class="form-control py-3 search-input" 
+                  placeholder="Search for free Open-Licensed Images, Audios & more"
+                  [(ngModel)]="searchTerm"
+                  name="searchTerm"
+                  aria-label="Search media"
+                >
+                <button class="btn search-button" type="submit">
+                  <i class="bi bi-search"></i>
+                  Search
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <div class="search-tips text-center mt-3">
+            <p>Try searching for: <span class="search-example">nature</span>, <span class="search-example">music</span>, <span class="search-example">technology</span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="featured-section py-5">
+    <div class="container">
+      <h2 class="text-center mb-4">Featured Categories</h2>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="card h-100 border-0 shadow-sm category-card">
+            <div class="card-body text-center">
+              <i class="bi bi-image category-icon"></i>
+              <h3 class="category-title">Images</h3>
+              <p class="category-description">High-quality photos and illustrations</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card h-100 border-0 shadow-sm category-card">
+            <div class="card-body text-center">
+              <i class="bi bi-music-note-beamed category-icon"></i>
+              <h3 class="category-title">Audio</h3>
+              <p class="category-description">Music, sound effects, and audio clips</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card h-100 border-0 shadow-sm category-card">
+            <div class="card-body text-center">
+              <i class="bi bi-film category-icon"></i>
+              <h3 class="category-title">Video</h3>
+              <p class="category-description">Stock footage and animations</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
