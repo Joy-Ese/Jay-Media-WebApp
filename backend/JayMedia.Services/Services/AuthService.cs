@@ -23,7 +23,7 @@ public class AuthService : IAuth
     _logger.LogDebug(1, "Nlog injected into AuthService");
   }
 
-// Write method logic for registering a new user
+// Write method logic for registering a new user 
   public async Task<ResponseModel> Register(RegisterDto request) 
   {
     ResponseModel response = new ResponseModel();
