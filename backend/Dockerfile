@@ -11,14 +11,14 @@ ARG configuration=Release
 WORKDIR /app
 
 # Copy the entire solution and project file and restore dependencies
-COPY JayMedia.sln .
-COPY backend/JayMedia.Api/JayMedia.Api.csproj backend/JayMedia.Api/
-COPY backend/JayMedia.Models/JayMedia.Models.csproj backend/JayMedia.Models/
-COPY backend/JayMedia.Services/JayMedia.Services.csproj backend/JayMedia.Services/
-RUN dotnet restore
+COPY JayMedia.Api/JayMedia.Api.csproj JayMedia.Api/
+COPY JayMedia.Models/JayMedia.Models.csproj JayMedia.Models/
+COPY JayMedia.Services/JayMedia.Services.csproj JayMedia.Services/
+RUN dotnet restore JayMedia.Api/JayMedia.Api.csproj
+
 
 # Copy the entire project and build the app
-COPY backend/. ./backend/
+COPY . .
 RUN dotnet build JayMedia.Api/JayMedia.Api.csproj -c $configuration -o /app/build
 
 # Publish the build
