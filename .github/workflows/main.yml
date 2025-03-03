@@ -41,20 +41,22 @@ jobs:
         with:
           dotnet-version: '9.0'
 
+      # 🔹 Restore dependencies for the entire solution
       - name: Restore .NET dependencies
         run: |
-          cd backend/JayMedia.Api
-          dotnet restore
+          # Checking we're in the correct root directory
+          ls -al  # List directories
+          dotnet restore JayMedia.sln  # Restore dependencies at the solution level
 
+      # 🔹 Build the entire .NET solution not just the API
       - name: Build .NET backend
         run: |
-          cd backend/JayMedia.Api
-          dotnet build --configuration Release --no-restore
+          dotnet build JayMedia.sln --configuration Release --no-restore
 
+      # 🔹 Run tests for the entire solution
       - name: Run backend tests
         run: |
-          cd backend/JayMedia.Api
-          dotnet test --no-restore --verbosity normal
+          dotnet test JayMedia.sln --no-restore --verbosity normal
 
       # 🔹 Build and Push Docker images
       - name: Log in to Docker Hub
@@ -94,8 +96,3 @@ jobs:
         run: |
           docker compose down || true
           docker compose up -d --build
-
-      # 🔹 Debugging step to check if directories exists
-      - name: List files directory
-        run: |
-          ls -R

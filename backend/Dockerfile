@@ -10,20 +10,21 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG configuration=Release
 WORKDIR /app
 
-# Copy the project file and restore dependencies
+# Copy the entire solution and project file and restore dependencies
 COPY JayMedia.Api/JayMedia.Api.csproj JayMedia.Api/
-# WORKDIR /backend/JayMedia.Api
-WORKDIR /app/JayMedia.Api
-RUN dotnet restore "JayMedia.Api.csproj"
+COPY JayMedia.Models/JayMedia.Models.csproj JayMedia.Models/
+COPY JayMedia.Services/JayMedia.Services.csproj JayMedia.Services/
+RUN dotnet restore JayMedia.Api/JayMedia.Api.csproj
+
 
 # Copy the entire project and build the app
-COPY JayMedia.Api ./
-RUN dotnet build "JayMedia.Api.csproj" -c $configuration -o /app/build
+COPY . .
+RUN dotnet build JayMedia.Api/JayMedia.Api.csproj -c $configuration -o /app/build
 
 # Publish the build
 FROM build AS publish
 ARG configuration=Release
-RUN dotnet publish "JayMedia.Api.csproj" -c $configuration -o /app/publish /p:UseAppHost=false
+RUN dotnet publish JayMedia.Api/JayMedia.Api.csproj -c $configuration -o /app/publish /p:UseAppHost=false
 
 # Runtime stage
 FROM base AS final
