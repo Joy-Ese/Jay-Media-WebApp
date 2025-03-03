@@ -51,6 +51,12 @@ try
 
   app.UseHttpsRedirection();
 
+  app.UseRouting();
+
+  app.UseAuthorization();
+
+  app.MapControllers();
+
   // var summaries = new[]
   // {
   //   "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"

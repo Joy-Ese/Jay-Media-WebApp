@@ -1,23 +1,15 @@
-using JayMedia.Data.Data;
 using JayMedia.Models.DTOs;
 using JayMedia.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace JayMedia.Api
+namespace JayMedia.Api.Controllers
 {
   [Route("api/[controller]")]
   [ApiController]
-  public class AuthController : ControllerBase
+  public class AuthController(IAuth authService) : ControllerBase
   {
-    private readonly DataContext _context;
-    private IAuth _authService;
-
-    public AuthController(DataContext context, IAuth authService)
-    {
-      _context = context;
-      _authService = authService;
-    }
+    private IAuth _authService = authService;
 
     [HttpPost("Register")]
     public async Task<IActionResult> Register([FromBody] RegisterDto request)
