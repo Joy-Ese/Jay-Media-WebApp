@@ -27,3 +27,8 @@ public class LoginDto
   [Required]
   public string password { get; set; } = string.Empty;
 }
+
+public class GoogleLoginDto
+{
+  public string idToken { get; set; } = string.Empty;
+}

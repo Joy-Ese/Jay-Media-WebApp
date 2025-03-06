@@ -1,19 +1,15 @@
-using System;
 using System.IdentityModel.Tokens.Jwt;
-using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.Json;
+using Google.Apis.Auth;
 using JayMedia.Data.Data;
 using JayMedia.Data.Entities;
 using JayMedia.Models.DTOs;
 using JayMedia.Services.Interfaces;
-using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace JayMedia.Services.Services;
@@ -148,13 +144,60 @@ public class AuthService : IAuth
     }
   }
 
-  // Create method to generate jwt token 
-  public string CreateJwtToken(User user) 
+  // Write method to login with Google
+  public async Task<ResponseModel> GoogleLogin(GoogleLoginDto request) 
   {
-    var jwtSettings = _configuration.GetSection("Jwt");
-    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]!));
-    var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+    ResponseModel response = new();
+    try 
+    {
+      var googleSettings = _configuration.GetSection("Authentication:Google");
 
+      // Verify the Google ID Token coming from the frontend
+      var payload = await GoogleJsonWebSignature.ValidateAsync(request.idToken, new GoogleJsonWebSignature.ValidationSettings
+      {
+        Audience = new[] 
+        { 
+          googleSettings["ClientId"] 
+        }
+      });
+
+      // Generate JWT token from credentials
+      var userExists = await _context.Users.FirstOrDefaultAsync(x => x.Email == payload.Email);
+
+      if (userExists == null) 
+      {
+        response.status = false;
+        response.message = "Invalid Email or Password";
+        _logger.LogWarning($"-----Google Login--- User email does not match email from google payload");
+        return response;
+      }
+
+      User userObj = new()
+      {
+        Id = userExists.Id,
+        Username = userExists.Username,
+        FirstName = userExists.FirstName,
+        LastName = userExists.LastName
+      };
+      var token = CreateJwtToken(userObj);
+
+      response.status = false;
+      response.message = token;
+      _logger.LogInformation($"User successfully logged in with Google Auth");
+      return response;
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError($"AN ERROR OCCURRED... => {ex.Message}");
+      response.status = false;
+      response.message = "An exception occured";
+      return response;
+    }
+  }
+
+  // Create method to generate jwt token 
+  private string CreateJwtToken(User user) 
+  {
     var claims = new[] 
     { 
       new Claim(CustomClaims.UserId, user.Id.ToString()),
@@ -163,11 +206,14 @@ public class AuthService : IAuth
       new Claim(CustomClaims.LastName, user.LastName),
     };
 
+    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+      _configuration.GetSection("JwtSettings:Token").Value!));
+
+    var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
     var token = new JwtSecurityToken(
-      jwtSettings["Issuer"],
-      jwtSettings["Audience"],
       claims: claims,
-      expires: DateTime.UtcNow.AddMinutes(Convert.ToDouble(jwtSettings["ExpiryMinutes"])),
+      expires: DateTime.Now.AddMinutes(30),
       signingCredentials: credentials
     );
 

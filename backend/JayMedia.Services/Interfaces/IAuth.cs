@@ -8,5 +8,5 @@ public interface IAuth
 {
   Task<ResponseModel> Register(RegisterDto request);
   Task<ResponseModel> Login(LoginDto request);
-  public string CreateJwtToken(User user);
+  Task<ResponseModel> GoogleLogin(GoogleLoginDto request);
 }

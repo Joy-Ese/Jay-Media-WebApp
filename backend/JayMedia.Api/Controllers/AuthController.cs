@@ -26,20 +26,16 @@ namespace JayMedia.Api.Controllers
     {
       var result = await _authService.Login(request);
       if (!result.status) return BadRequest(result);
-
       return Ok(result);
     }
 
-    // [HttpGet("google-response")]
-    // public async Task<IActionResult> GoogleResponse()
-    // {
-    //     var result = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
-    //     if (!result.Succeeded) return Unauthorized();
-
-    //     var username = result.Principal.FindFirstValue(CustomClaims.Username);
-    //     var token = _authService.CreateJwtToken(username!);
-    //     return Ok(new { Token = token });
-    // }
+    [HttpPost("Google-Login")]
+    public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginDto request)
+    {
+      var result = await _authService.GoogleLogin(request);
+      if (!result.status) return BadRequest(result);
+      return Ok(result);
+    }
 
 
   }
