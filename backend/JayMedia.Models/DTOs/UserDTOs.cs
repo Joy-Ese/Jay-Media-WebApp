@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace JayMedia.Models.DTOs;
 
@@ -17,4 +18,12 @@ public class RegisterDto
   public string password { get; set; } = string.Empty;
   public string confirmPassword { get; set; } = string.Empty;
   public bool termsAgreed { get; set; }
+}
+
+public class LoginDto
+{
+  [Required]
+  public string username { get; set; } = string.Empty;
+  [Required]
+  public string password { get; set; } = string.Empty;
 }
