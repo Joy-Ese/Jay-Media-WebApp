@@ -1,5 +1,8 @@
-using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Security.Cryptography;
+using System.Text;
+using Google.Apis.Auth;
 using JayMedia.Data.Data;
 using JayMedia.Data.Entities;
 using JayMedia.Models.DTOs;
@@ -7,6 +10,7 @@ using JayMedia.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 
 namespace JayMedia.Services.Services;
 
@@ -26,7 +30,7 @@ public class AuthService : IAuth
 // Write method logic for registering a new user 
   public async Task<ResponseModel> Register(RegisterDto request) 
   {
-    ResponseModel response = new ResponseModel();
+    ResponseModel response = new();
     try 
     {
       var userExists = await _context.Users.AnyAsync(x => x.Username == request.username || x.Email == request.email);
@@ -79,7 +83,143 @@ public class AuthService : IAuth
     }
   }
 
-  // Write method logic for logging in a user
+  // Write method logic for logging in a user // Implementing OAuth 2.0
+  public async Task<ResponseModel> Login(LoginDto request) 
+  {
+    ResponseModel response = new();
+    try 
+    {
+      var userExists = await _context.Users.FirstOrDefaultAsync(x => x.Username == request.username);
+
+      if (userExists == null) 
+      {
+        response.status = false;
+        response.message = "Invalid Username or Password";
+        _logger.LogWarning($"-----Invalid Username or Password----{request.username}----");
+        return response;
+      }
+
+      if (userExists.PasswordHash == null || userExists.PasswordSalt == null)
+      {
+        response.status = false;
+        response.message = "Invalid Username or Password";
+        _logger.LogWarning($"-----PasswordHash or PasswordSalt returned null----");
+        return response;
+      }
+
+      if (!VerifyPasswordHash(request.password, userExists.PasswordHash, userExists.PasswordSalt))
+      {
+        response.status = false;
+        response.message = "Invalid Username or Password";
+        return response;
+      }
+
+      // create token... check if token is null or empty
+      string token = CreateJwtToken(userExists);
+
+      if (string.IsNullOrEmpty(token))
+      {
+        response.status = false;
+        response.message = "Login failed";
+        _logger.LogWarning($"-----Unable to create jwt token... Token is null {token}----");
+        return response;
+      }
+
+      userExists.LastLogin = DateTime.UtcNow;
+      await _context.SaveChangesAsync();
+
+      response.status = true;
+      response.message = "Login successful";
+
+      _logger.LogInformation($"User successfully logged in with {userExists.Username}");
+
+      return response;
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError($"AN ERROR OCCURRED... => {ex.Message}");
+      response.status = false;
+      response.message = "An exception occured";
+      return response;
+    }
+  }
+
+  // Write method to login with Google
+  public async Task<ResponseModel> GoogleLogin(GoogleLoginDto request) 
+  {
+    ResponseModel response = new();
+    try 
+    {
+      var googleSettings = _configuration.GetSection("Authentication:Google");
+
+      // Verify the Google ID Token coming from the frontend
+      var payload = await GoogleJsonWebSignature.ValidateAsync(request.idToken, new GoogleJsonWebSignature.ValidationSettings
+      {
+        Audience = new[] 
+        { 
+          googleSettings["ClientId"] 
+        }
+      });
+
+      // Generate JWT token from credentials
+      var userExists = await _context.Users.FirstOrDefaultAsync(x => x.Email == payload.Email);
+
+      if (userExists == null) 
+      {
+        response.status = false;
+        response.message = "Invalid Email or Password";
+        _logger.LogWarning($"-----Google Login--- User email does not match email from google payload");
+        return response;
+      }
+
+      User userObj = new()
+      {
+        Id = userExists.Id,
+        Username = userExists.Username,
+        FirstName = userExists.FirstName,
+        LastName = userExists.LastName
+      };
+      var token = CreateJwtToken(userObj);
+
+      response.status = false;
+      response.message = token;
+      _logger.LogInformation($"User successfully logged in with Google Auth");
+      return response;
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError($"AN ERROR OCCURRED... => {ex.Message}");
+      response.status = false;
+      response.message = "An exception occured";
+      return response;
+    }
+  }
+
+  // Create method to generate jwt token 
+  private string CreateJwtToken(User user) 
+  {
+    var claims = new[] 
+    { 
+      new Claim(CustomClaims.UserId, user.Id.ToString()),
+      new Claim(CustomClaims.Username, user.Username),
+      new Claim(CustomClaims.FirstName, user.FirstName),
+      new Claim(CustomClaims.LastName, user.LastName),
+    };
+
+    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+      _configuration.GetSection("JwtSettings:Token").Value!));
+
+    var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+    var token = new JwtSecurityToken(
+      claims: claims,
+      expires: DateTime.Now.AddMinutes(30),
+      signingCredentials: credentials
+    );
+
+    var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+    return jwt;
+  }
 
   // Write method to Hash Password before saving to the db
   public static void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt) 
@@ -96,5 +236,6 @@ public class AuthService : IAuth
     var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
     return computedHash.SequenceEqual(passwordHash);
   }
+
 
 }
