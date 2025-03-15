@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 
 @Component({
@@ -12,21 +13,51 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit{
+  baseUrl : string = "http://localhost:5090";
+
+  respMsg : string = "";
+
+  status! : boolean;
+
   loginForm: FormGroup;
 
-  constructor(private fb: FormBuilder) {
+  key : any;
+
+  constructor(
+    private http: HttpClient,
+    private fb: FormBuilder
+  ) {
     this.loginForm = this.fb.group({
       username: ["", [Validators.required, Validators.minLength(2)]],
       password: ["", [Validators.required, Validators.minLength(6)]],
-      rememberMe: [false]
     });
   }
 
-  onSubmit() {
+  ngOnInit() {}
+
+  onSubmit(loginData: { userName: string, password: string }) {
     if (this.loginForm.valid) {
       console.log("Login form submitted", this.loginForm.value);
-      // Consume login endpoint here ansd implement logic
+
+      const headers = new HttpHeaders({
+        "Content-Type": "application/json"
+      });
+
+      this.http.post<any>(`${this.baseUrl}/api/Auth/Login`, loginData, {headers: headers})
+      .subscribe({
+        next: (res) => {
+          console.log(res);
+          this.respMsg = res.message;
+          this.status = res.status;
+
+          this.key = localStorage.setItem("loginResp", JSON.stringify(res));
+          localStorage.setItem("token", res.message);
+
+
+        }
+      })
+
     } else {
       this.loginForm.markAllAsTouched();
     }
