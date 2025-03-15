@@ -29,8 +29,8 @@ try
   options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
   // Add Implementation for OAuth2.0 Here -- Using Google OAuth
-  // Load Google settings
-  var googleSettings = builder.Configuration.GetSection("Authentication:Google");
+  // Load app settings
+  // var googleSettings = builder.Configuration.GetSection("Authentication:Google");
   var jwtSettings = builder.Configuration.GetSection("JwtSettings");
   var key = Encoding.UTF8.GetBytes(jwtSettings["Token"] ?? throw new ArgumentNullException("JWT Key is missing"));
 

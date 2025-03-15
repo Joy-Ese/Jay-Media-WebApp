@@ -125,7 +125,7 @@ public class AuthService : IAuth
         return response;
       }
 
-      userExists.LastLogin = DateTime.Now;
+      userExists.LastLogin = DateTime.UtcNow;
       await _context.SaveChangesAsync();
 
       response.status = true;
