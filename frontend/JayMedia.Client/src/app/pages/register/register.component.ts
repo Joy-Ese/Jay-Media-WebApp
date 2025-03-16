@@ -1,5 +1,6 @@
-import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 
 @Component({
@@ -12,10 +13,20 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
   templateUrl: './register.component.html',
   styleUrl: './register.component.css'
 })
-export class RegisterComponent {
+export class RegisterComponent implements OnInit{
+  baseUrl : string = "http://localhost:5090";
+
+  respMsg : string = "";
+
+  status! : boolean;
+
   registerForm: FormGroup;
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    @Inject(DOCUMENT) private domDocument: Document,
+    private http: HttpClient,
+    private fb: FormBuilder
+  ) {
     this.registerForm = this.fb.group({
       firstname: ["", [Validators.required, Validators.minLength(2)]],
       lastname: ["", [Validators.required, Validators.minLength(2)]],
@@ -29,6 +40,8 @@ export class RegisterComponent {
     });
   }
 
+  ngOnInit() {}
+
   checkIfPasswordMatches(form: FormGroup) {
     const password = form.get("password")?.value;
     const confirmPassword = form.get("confirmPassword")?.value;
@@ -37,16 +50,29 @@ export class RegisterComponent {
       form.get("confirmPassword")?.setErrors({ passwordMismatch: true });
       return { passwordMismatch: true };
     }
-    return null;
-    // return { passwordMismatch: false };
+    return { passwordMismatch: false };
   }
 
-  onSubmit() {
-    if (this.registerForm.valid) {
-      console.log("Register form submitted", this.registerForm.value);
-      // consume register service endpoint here and implement logic
-    } else {
-      this.registerForm.markAllAsTouched();
-    }
+  onSubmit(registerData: [key: string]) {
+    console.log("🚀 Form submitted");
+    const headers = new HttpHeaders({
+      "Content-Type": "application/json"
+    });
+    this.http.post<any>(`${this.baseUrl}/api/Auth/Register`, registerData, {headers: headers})
+    .subscribe({
+      next: (res) => {
+        console.log(res);
+        this.respMsg = res.message;
+        this.status = res.status;
+        if (this.status == true) {
+          setTimeout(() => {this.domDocument.location.replace("/login")}, 3000);
+        }
+      },
+      error: (err) => {
+        console.log(err);
+      },
+    });
   }
+
+
 }

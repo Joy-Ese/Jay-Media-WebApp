@@ -129,7 +129,7 @@ public class AuthService : IAuth
       await _context.SaveChangesAsync();
 
       response.status = true;
-      response.message = "Login successful";
+      response.message = token;
 
       _logger.LogInformation($"User successfully logged in with {userExists.Username}");
 

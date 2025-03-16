@@ -9,7 +9,9 @@
               <p class="auth-subtitle">Login to your account</p>
             </div>
 
-            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+            <small *ngIf="status == false" class="alert alert-danger">{{respMsg}}</small>
+
+            <form class="mt-4" [formGroup]="loginForm" (ngSubmit)="onSubmit(loginForm.value)">
               <div class="mb-3">
                 <label for="username" class="form-label">Username</label>
                 <input 
@@ -45,11 +47,6 @@
                 <div class="invalid-feedback" *ngIf="loginForm.get('password')?.errors?.['minlength'] && loginForm.get('password')?.touched">
                   Password must be at least 6 characters
                 </div>
-              </div>
-
-              <div class="mb-4 form-check">
-                <input type="checkbox" class="form-check-input" id="rememberMe" formControlName="rememberMe">
-                <label class="form-check-label" for="rememberMe">Remember me</label>
               </div>
 
               <button type="submit" class="btn btn-lg w-100 mb-3 login-btn">Login</button>

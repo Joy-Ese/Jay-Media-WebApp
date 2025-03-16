@@ -4,6 +4,7 @@ using JayMedia.Data.Data;
 using JayMedia.Services.Interfaces;
 using JayMedia.Services.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using NLog;
@@ -15,6 +16,32 @@ logger.Debug("init main");
 try 
 {
   var builder = WebApplication.CreateBuilder(args);
+
+  // Add CORS policy
+  builder.Services.AddCors(options => {
+    options.AddPolicy("_myAllowSpecificOrigins",
+    new CorsPolicyBuilder()
+    .WithOrigins("http://localhost:4200")
+    .AllowAnyHeader()
+    .AllowAnyMethod()
+    .SetIsOriginAllowed(origin => true)
+    .AllowCredentials()
+    .Build());
+  });
+
+  var policyName = "_myAllowSpecificOrigins";
+  builder.Services.AddCors(options =>
+    {
+      options.AddPolicy(name: policyName,
+        policy =>
+        {
+          policy.WithOrigins("http://localhost:4200")
+          .WithMethods("GET", "POST", "PUT", "DELETE")
+          .AllowAnyHeader();
+        }
+      );
+    }
+  );
 
   // NLog: Setup NLog for Dependency injection
   builder.Logging.ClearProviders();
@@ -107,6 +134,8 @@ try
 
   app.UseSwagger();
   app.UseSwaggerUI();
+
+  app.UseCors(policyName);
 
   app.UseHttpsRedirection();
 

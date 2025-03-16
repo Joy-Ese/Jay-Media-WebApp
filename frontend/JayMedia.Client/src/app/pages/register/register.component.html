@@ -9,7 +9,9 @@
               <p class="auth-subtitle">Join our community and enjoy better user experience.</p>
             </div>
 
-            <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+            <small *ngIf="status == false" class="alert alert-danger">{{respMsg}}</small>
+
+            <form class="mt-4" [formGroup]="registerForm" (ngSubmit)="onSubmit(registerForm.value)">
               <div class="mb-3">
                 <label for="firstname" class="form-label">First Name</label>
                 <input 
