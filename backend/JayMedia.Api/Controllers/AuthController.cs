@@ -57,6 +57,5 @@ namespace JayMedia.Api.Controllers
       return Ok(result);
     }
 
-
   }
 }

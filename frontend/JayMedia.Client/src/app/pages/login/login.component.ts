@@ -41,8 +41,7 @@ export class LoginComponent implements OnInit{
   }
 
   ngOnInit(): void {
-    this.googleAuthService.loadGoogleAuth();
-    this.googleAuthService.renderGoogleSignInButton();
+    this.googleAuthService.initializeGoogleAuth();
   }
 
   onSubmit(loginData: { userName: string, password: string }) {
@@ -80,7 +79,4 @@ export class LoginComponent implements OnInit{
     }
   }
 
-  signInWithGoogle(): void {
-    google.accounts.id.prompt();
-  }
 }
