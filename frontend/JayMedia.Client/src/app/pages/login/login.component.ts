@@ -48,13 +48,16 @@ export class LoginComponent implements OnInit{
       .subscribe({
         next: (res) => {
           console.log(res);
-          this.respMsg = res.message;
-          this.status = res.status;
-
           this.key = localStorage.setItem("loginResp", JSON.stringify(res));
           localStorage.setItem("token", res.message);
 
 
+        },
+        error: (err) => {
+          console.log(err);
+          this.respMsg = err.error.message;
+          this.status = err.error.status;
+          console.log(this.respMsg);
         }
       })
 

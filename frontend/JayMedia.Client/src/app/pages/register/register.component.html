@@ -10,9 +10,8 @@
             </div>
 
             <small *ngIf="status == false" class="alert alert-danger">{{respMsg}}</small>
-            <div *ngIf="status == false" class="alert alert-danger">{{respMsg}}</div>
 
-            <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+            <form class="mt-4" [formGroup]="registerForm" (ngSubmit)="onSubmit(registerForm.value)">
               <div class="mb-3">
                 <label for="firstname" class="form-label">First Name</label>
                 <input 

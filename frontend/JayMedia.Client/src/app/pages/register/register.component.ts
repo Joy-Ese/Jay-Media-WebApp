@@ -53,66 +53,25 @@ export class RegisterComponent implements OnInit{
     return { passwordMismatch: false };
   }
 
-  // onSubmit() {
-  //   console.log("🚀 Form submitted");
-  //   if (this.registerForm.valid) {
-  //     console.log("Register form submitted", this.registerForm.value);
-
-  //     const headers = new HttpHeaders({
-  //       "Content-Type": "application/json"
-  //     });
-
-  //     this.http.post<any>(`${this.baseUrl}/api/Auth/Register`, this.registerForm.value, {headers: headers})
-  //     .subscribe({
-  //       next: (res) => {
-  //         console.log(res);
-  //         this.respMsg = res.message;
-  //         this.status = res.status;
-
-  //         if (this.status) {
-  //           setTimeout(() => {this.domDocument.location.replace("/login")}, 3000);
-  //         }
-  //       },
-  //       error: (err) => {
-  //         console.error(err);
-  //       }
-  //     });
-  //   } else {
-  //     this.registerForm.markAllAsTouched();
-  //   }
-  // }
-
-  onSubmit() { 
+  onSubmit(registerData: [key: string]) {
     console.log("🚀 Form submitted");
-
-    if (this.registerForm.valid) {
-      console.log("✅ Form is valid", this.registerForm.value);
-
-      const headers = new HttpHeaders({
-        "Content-Type": "application/json"
-      });
-
-      this.http.post<any>(`${this.baseUrl}/api/Auth/Register`, this.registerForm.value, { headers })
-      .subscribe({
-        next: (res) => {
-          console.log("✅ Response:", res);
-          this.respMsg = res.message;
-          this.status = res.status;
-
-          if (this.status) {
-            setTimeout(() => {
-              this.domDocument.location.replace("/login");
-            }, 3000);
-          }
-        },
-        error: (err) => {
-          console.error("❌ Error:", err);
+    const headers = new HttpHeaders({
+      "Content-Type": "application/json"
+    });
+    this.http.post<any>(`${this.baseUrl}/api/Auth/Register`, registerData, {headers: headers})
+    .subscribe({
+      next: (res) => {
+        console.log(res);
+        this.respMsg = res.message;
+        this.status = res.status;
+        if (this.status == true) {
+          setTimeout(() => {this.domDocument.location.replace("/login")}, 3000);
         }
-      });
-    } else {
-      console.log("❌ Form is invalid");
-      this.registerForm.markAllAsTouched();
-    }
+      },
+      error: (err) => {
+        console.log(err);
+      },
+    });
   }
 
 
