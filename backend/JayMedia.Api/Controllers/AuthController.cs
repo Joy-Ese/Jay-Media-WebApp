@@ -1,9 +1,6 @@
-using System.Security.Claims;
+using System.Text.Json;
 using JayMedia.Models.DTOs;
 using JayMedia.Services.Interfaces;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Google;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace JayMedia.Api.Controllers
@@ -15,18 +12,41 @@ namespace JayMedia.Api.Controllers
     private IAuth _authService = authService;
 
     [HttpPost("Register")]
-    public async Task<IActionResult> Register([FromBody] RegisterDto request)
+    public async Task<IActionResult> Register([FromBody] EncryptedRequest request)
     {
-      var result = await _authService.Register(request);
-      return Ok(result);
+      // Decrypt incoming frontend request
+      string decryptedData = EncryptionHelper.DecryptData(request.Data);
+      var userData = JsonSerializer.Deserialize<RegisterDto>(decryptedData);
+
+      // Error Handling when userData is null
+      if (userData == null) return BadRequest("Incorrect User Information");
+
+      // Pass decrypted data to service
+      var result = await _authService.Register(userData);
+      if (!result.status) return BadRequest(result);
+
+      // Encrypt response before sending it back
+      string encryptedResponse = EncryptionHelper.EncryptData(JsonSerializer.Serialize(result));
+      return Ok(encryptedResponse);
     }
 
     [HttpPost("Login")]
-    public async Task<IActionResult> Login([FromBody] LoginDto request)
+    public async Task<IActionResult> Login([FromBody] EncryptedRequest request)
     {
-      var result = await _authService.Login(request);
+      // Decrypt incoming frontend request
+      string decryptedData = EncryptionHelper.DecryptData(request.Data);
+      var userData = JsonSerializer.Deserialize<LoginDto>(decryptedData);
+
+      // Error Handling when userData is null
+      if (userData == null) return BadRequest("Incorrect User Information");
+
+      // Pass decrypted data to service
+      var result = await _authService.Login(userData);
       if (!result.status) return BadRequest(result);
-      return Ok(result);
+
+      // Encrypt response before sending it back
+      string encryptedResponse = EncryptionHelper.EncryptData(JsonSerializer.Serialize(result));
+      return Ok(encryptedResponse);
     }
 
     [HttpPost("Google-Login")]

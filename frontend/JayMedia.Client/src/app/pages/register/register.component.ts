@@ -2,6 +2,7 @@ import { CommonModule, DOCUMENT } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { EncryptionService } from '../../services/encryption.service';
 
 @Component({
   selector: 'app-register',
@@ -25,7 +26,8 @@ export class RegisterComponent implements OnInit{
   constructor(
     @Inject(DOCUMENT) private domDocument: Document,
     private http: HttpClient,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private encryptionService : EncryptionService
   ) {
     this.registerForm = this.fb.group({
       firstname: ["", [Validators.required, Validators.minLength(2)]],
@@ -55,17 +57,26 @@ export class RegisterComponent implements OnInit{
 
   onSubmit(registerData: [key: string]) {
     console.log("🚀 Form submitted");
+
+    const encryptedData = this.encryptionService.encryptData(registerData);
+
     const headers = new HttpHeaders({
       "Content-Type": "application/json"
     });
-    this.http.post<any>(`${this.baseUrl}/api/Auth/Register`, registerData, {headers: headers})
+
+    this.http.post<any>(`${this.baseUrl}/api/Auth/Register`, { data: encryptedData }, {headers: headers})
     .subscribe({
       next: (res) => {
         console.log(res);
-        this.respMsg = res.message;
-        this.status = res.status;
+        const decryptedResponse = this.encryptionService.decryptData(res);
+        console.log('Decrypted Response:', decryptedResponse);
+        if (!decryptedResponse.status) {
+          this.status = decryptedResponse.status;
+          this.respMsg = decryptedResponse.message;
+        }
+        console.log(decryptedResponse.message);
         if (this.status == true) {
-          setTimeout(() => {this.domDocument.location.replace("/login")}, 3000);
+          setTimeout(() => {this.domDocument.location.replace("/login")}, 4000);
         }
       },
       error: (err) => {

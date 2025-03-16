@@ -237,5 +237,5 @@ public class AuthService : IAuth
     return computedHash.SequenceEqual(passwordHash);
   }
 
-
+  
 }
