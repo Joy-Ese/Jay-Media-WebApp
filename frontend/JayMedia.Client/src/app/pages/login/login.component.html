@@ -5,7 +5,7 @@
         <div class="card border-0 shadow-sm">
           <div class="card-body p-4 p-md-5">
             <div class="text-center mb-4">
-              <h2 class="auth-title">Welcome Back</h2>
+              <h3 class="auth-title">Welcome Back</h3>
               <p class="auth-subtitle">Login to your account</p>
             </div>
 
@@ -49,10 +49,12 @@
                 </div>
               </div>
 
-              <button type="submit" class="btn btn-lg w-100 mb-3 login-btn">Login</button>
+              <button type="submit" class="btn btn-sm w-100 mb-3 login-btn">Login</button>
             </form>
           </div>
 
+          <button class="btn btn-sm w-100 mb-3 login-btn" (click)="signInWithGoogle()">Login with Google</button>
+          <div id="google-signin-btn"></div>
 
         </div>
 

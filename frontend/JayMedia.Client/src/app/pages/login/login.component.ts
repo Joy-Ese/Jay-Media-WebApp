@@ -3,6 +3,9 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { EncryptionService } from '../../services/encryption.service';
+import { GoogleAuthService } from '../../services/google-auth.service';
+
+declare const google: any;
 
 @Component({
   selector: 'app-login',
@@ -28,7 +31,8 @@ export class LoginComponent implements OnInit{
   constructor(
     private http: HttpClient,
     private fb: FormBuilder,
-    private encryptionService : EncryptionService
+    private encryptionService : EncryptionService,
+    private googleAuthService: GoogleAuthService
   ) {
     this.loginForm = this.fb.group({
       username: ["", [Validators.required, Validators.minLength(2)]],
@@ -36,7 +40,10 @@ export class LoginComponent implements OnInit{
     });
   }
 
-  ngOnInit() {}
+  ngOnInit(): void {
+    this.googleAuthService.loadGoogleAuth();
+    this.googleAuthService.renderGoogleSignInButton();
+  }
 
   onSubmit(loginData: { userName: string, password: string }) {
     if (this.loginForm.valid) {
@@ -66,9 +73,14 @@ export class LoginComponent implements OnInit{
           console.log(err);
         }
       })
-
-    } else {
+    } 
+    else 
+    {
       this.loginForm.markAllAsTouched();
     }
+  }
+
+  signInWithGoogle(): void {
+    google.accounts.id.prompt();
   }
 }

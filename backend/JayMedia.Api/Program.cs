@@ -55,9 +55,7 @@ try
   builder.Services.AddDbContext<DataContext>(options =>
   options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-  // Add Implementation for OAuth2.0 Here -- Using Google OAuth
   // Load app settings
-  // var googleSettings = builder.Configuration.GetSection("Authentication:Google");
   var jwtSettings = builder.Configuration.GetSection("JwtSettings");
   var key = Encoding.UTF8.GetBytes(jwtSettings["Token"] ?? throw new ArgumentNullException("JWT Key is missing"));
 
@@ -76,11 +74,6 @@ try
         ValidateAudience = false
     };
   });
-  // .AddGoogle(GoogleDefaults.AuthenticationScheme, options => {
-  //   options.ClientId = googleSettings["ClientId"] ?? throw new ArgumentNullException("Google ClientId is missing in appsettings.json");
-  //   options.ClientSecret = googleSettings["ClientSecret"] ?? throw new ArgumentNullException("Google ClientSecret is missing in appsettings.json");
-  // });
-  // -------------------Google OAuth------------------------- //
 
   // Add Swagger Configuration for testing Authentication from Swagger UI
   builder.Services.AddSwaggerGen(options => 
