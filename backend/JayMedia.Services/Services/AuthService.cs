@@ -16,11 +16,13 @@ namespace JayMedia.Services.Services;
 
 public class AuthService : IAuth
 {
+  private readonly string _googleClientId;
   private readonly DataContext _context;
   private readonly IConfiguration _configuration;
   private readonly ILogger<AuthService> _logger;
 
   public AuthService(DataContext context, IConfiguration configuration, ILogger<AuthService> logger) {
+    _googleClientId = configuration["GoogleAuthSettings:ClientId"] ?? throw new ArgumentNullException("Google Client ID is missing in configuration.");
     _context = context;
     _configuration = configuration;
     _logger = logger;
@@ -144,22 +146,24 @@ public class AuthService : IAuth
     }
   }
 
-  // Write method to login with Google
+  // Write method to login with Google Authentication
   public async Task<ResponseModel> GoogleLogin(GoogleLoginDto request) 
   {
     ResponseModel response = new();
     try 
     {
-      var googleSettings = _configuration.GetSection("Authentication:Google");
-
       // Verify the Google ID Token coming from the frontend
       var payload = await GoogleJsonWebSignature.ValidateAsync(request.idToken, new GoogleJsonWebSignature.ValidationSettings
       {
-        Audience = new[] 
-        { 
-          googleSettings["ClientId"] 
-        }
+        Audience = new[] { _googleClientId }
       });
+
+      if (payload == null)
+      {
+        response.status = false;
+        response.message = "Invalid Google token";
+        return response;
+      }
 
       // Generate JWT token from credentials
       var userExists = await _context.Users.FirstOrDefaultAsync(x => x.Email == payload.Email);
@@ -168,7 +172,7 @@ public class AuthService : IAuth
       {
         response.status = false;
         response.message = "Invalid Email or Password";
-        _logger.LogWarning($"-----Google Login--- User email does not match email from google payload");
+        _logger.LogWarning($"-----Google Login--- User email from google does not exist on DB");
         return response;
       }
 
@@ -181,7 +185,7 @@ public class AuthService : IAuth
       };
       var token = CreateJwtToken(userObj);
 
-      response.status = false;
+      response.status = true;
       response.message = token;
       _logger.LogInformation($"User successfully logged in with Google Auth");
       return response;
@@ -237,5 +241,5 @@ public class AuthService : IAuth
     return computedHash.SequenceEqual(passwordHash);
   }
 
-  
+
 }
