@@ -28,6 +28,11 @@ public class LoginDto
   public string password { get; set; } = string.Empty;
 }
 
+public class EncryptedRequest
+{
+  public string Data { get; set; } = string.Empty;
+}
+
 public class GoogleLoginDto
 {
   public string idToken { get; set; } = string.Empty;

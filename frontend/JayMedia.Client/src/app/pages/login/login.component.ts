@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { EncryptionService } from '../../services/encryption.service';
 
 @Component({
   selector: 'app-login',
@@ -26,7 +27,8 @@ export class LoginComponent implements OnInit{
 
   constructor(
     private http: HttpClient,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private encryptionService : EncryptionService
   ) {
     this.loginForm = this.fb.group({
       username: ["", [Validators.required, Validators.minLength(2)]],
@@ -40,22 +42,29 @@ export class LoginComponent implements OnInit{
     if (this.loginForm.valid) {
       console.log("Login form submitted", this.loginForm.value);
 
+      const encryptedData = this.encryptionService.encryptData(loginData);
+
       const headers = new HttpHeaders({
         "Content-Type": "application/json"
       });
 
-      this.http.post<any>(`${this.baseUrl}/api/Auth/Login`, loginData, {headers: headers})
+      this.http.post<any>(`${this.baseUrl}/api/Auth/Login`, { data: encryptedData }, {headers: headers})
       .subscribe({
         next: (res) => {
           console.log(res);
-          this.key = localStorage.setItem("loginResp", JSON.stringify(res));
-          localStorage.setItem("token", res.message);
+          const decryptedResponse = this.encryptionService.decryptData(res);
+          console.log('Decrypted Response:', decryptedResponse);
+          debugger
+          if (!decryptedResponse.status) {
+            this.status = decryptedResponse.status;
+            this.respMsg = decryptedResponse.message;
+          }
+          this.key = localStorage.setItem("loginResp", JSON.stringify(decryptedResponse));
+          console.log(decryptedResponse.message);
+          localStorage.setItem("token", decryptedResponse.message);
         },
         error: (err) => {
           console.log(err);
-          this.respMsg = err.error.message;
-          this.status = err.error.status;
-          console.log(this.respMsg);
         }
       })
 
