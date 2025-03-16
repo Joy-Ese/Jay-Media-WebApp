@@ -50,8 +50,6 @@ export class LoginComponent implements OnInit{
           console.log(res);
           this.key = localStorage.setItem("loginResp", JSON.stringify(res));
           localStorage.setItem("token", res.message);
-
-
         },
         error: (err) => {
           console.log(err);
