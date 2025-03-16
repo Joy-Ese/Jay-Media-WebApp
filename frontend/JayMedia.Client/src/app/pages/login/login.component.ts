@@ -54,7 +54,6 @@ export class LoginComponent implements OnInit{
           console.log(res);
           const decryptedResponse = this.encryptionService.decryptData(res);
           console.log('Decrypted Response:', decryptedResponse);
-          debugger
           if (!decryptedResponse.status) {
             this.status = decryptedResponse.status;
             this.respMsg = decryptedResponse.message;

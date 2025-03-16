@@ -12,10 +12,22 @@ namespace JayMedia.Api.Controllers
     private IAuth _authService = authService;
 
     [HttpPost("Register")]
-    public async Task<IActionResult> Register([FromBody] RegisterDto request)
+    public async Task<IActionResult> Register([FromBody] EncryptedRequest request)
     {
-      var result = await _authService.Register(request);
-      return Ok(result);
+      // Decrypt incoming frontend request
+      string decryptedData = EncryptionHelper.DecryptData(request.Data);
+      var userData = JsonSerializer.Deserialize<RegisterDto>(decryptedData);
+
+      // Error Handling when userData is null
+      if (userData == null) return BadRequest("Incorrect User Information");
+
+      // Pass decrypted data to service
+      var result = await _authService.Register(userData);
+      if (!result.status) return BadRequest(result);
+
+      // Encrypt response before sending it back
+      string encryptedResponse = EncryptionHelper.EncryptData(JsonSerializer.Serialize(result));
+      return Ok(encryptedResponse);
     }
 
     [HttpPost("Login")]
