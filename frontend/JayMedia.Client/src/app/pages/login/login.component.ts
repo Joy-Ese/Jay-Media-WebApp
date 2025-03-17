@@ -4,6 +4,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { EncryptionService } from '../../services/encryption.service';
 import { GoogleAuthService } from '../../services/google-auth.service';
+import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
 
 declare const google: any;
 
@@ -32,7 +34,9 @@ export class LoginComponent implements OnInit{
     private http: HttpClient,
     private fb: FormBuilder,
     private encryptionService : EncryptionService,
-    private googleAuthService: GoogleAuthService
+    private googleAuthService: GoogleAuthService,
+    private authService: AuthService,
+    private router: Router,
   ) {
     this.loginForm = this.fb.group({
       username: ["", [Validators.required, Validators.minLength(2)]],
@@ -67,8 +71,34 @@ export class LoginComponent implements OnInit{
           this.key = localStorage.setItem("loginResp", JSON.stringify(decryptedResponse));
           console.log(decryptedResponse.message);
           localStorage.setItem("token", decryptedResponse.message);
+
+          const headers2 = new HttpHeaders({
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${decryptedResponse.message}`
+          });
+
+          this.http.get<any>(`${this.baseUrl}/api/User/GetUserDetails`, {headers: headers2})
+          .subscribe({
+            next: (res) => {
+              localStorage.setItem("userDetails", JSON.stringify(res));
+              localStorage.setItem("userId", res.username);
+              if (this.authService.isAuthenticated()) {
+                setTimeout(() => {
+                  this.router.navigate(['/home']).then(() => {
+                    location.reload();
+                  });
+                }, 1000);
+              }
+              this.router.navigate(['/login']);
+            },
+            error: (err) => {
+              console.log(err);
+            }
+          });
         },
         error: (err) => {
+          this.status = err.error.status;
+          this.respMsg = err.error.message;
           console.log(err);
         }
       })

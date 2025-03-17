@@ -1,6 +1,8 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { jwtDecode } from 'jwt-decode';
+import { AuthService } from './auth.service';
+import { Router } from '@angular/router';
 
 declare const google: any;
 
@@ -18,7 +20,11 @@ export class GoogleAuthService {
 
   private clientId = "1095572228607-4saav0nj252bmlnm7f5mnfabbfo6m1dr.apps.googleusercontent.com";
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService,
+    private router: Router
+  ) { }
 
   initializeGoogleAuth(): void {
     this.loadGoogleAuth().then(() => {
@@ -61,6 +67,30 @@ export class GoogleAuthService {
         console.log(res);
         this.key = localStorage.setItem("loginResp", JSON.stringify(res));
         localStorage.setItem("token", res.message);
+
+        const headers2 = new HttpHeaders({
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${res.message}`
+        });
+
+        this.http.get<any>(`${this.baseUrl}/api/User/GetUserDetails`, {headers: headers2})
+          .subscribe({
+            next: (res) => {
+              localStorage.setItem("userDetails", JSON.stringify(res));
+              localStorage.setItem("userId", res.username);
+              if (this.authService.isAuthenticated()) {
+                setTimeout(() => {
+                  this.router.navigate(['/home']).then(() => {
+                    location.reload();
+                  });
+                }, 1000);
+              }
+              this.router.navigate(['/login']);
+            },
+            error: (err) => {
+              console.log(err);
+            }
+          });
       },
       error: (err) => {
         this.status = err.error.status;
