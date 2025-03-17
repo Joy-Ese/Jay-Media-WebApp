@@ -25,16 +25,27 @@
       <div class="collapse navbar-collapse" [class.show]="!isMenuCollapsed" id="navbarNav">
         <ul class="navbar-nav me-auto">
           <li class="nav-item">
-            <a class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a>
+            <a class="nav-link" routerLink="/home">Home</a>
           </li>
         </ul>
 
-        <div class="d-flex">
-          <a class="btn btn-outline-light me-2" routerLink="/login">Login</a>
-          <a class="btn" routerLink="/register" style="background-color: #ff9900; color: white;">Register</a>
+        <div *ngIf="userName; else loggedOut">
+          <div class="d-flex mt-3">
+            <p class="btn btn-outline-light me-2">Welcome, {{ userName }}! 🎉</p>
+            <p class="btn" routerLink="/register" style="background-color: #ff9900; color: white;">
+              Manage Searches
+            </p>
+          </div>
         </div>
-      </div>
 
+        <ng-template #loggedOut>
+          <div class="d-flex">
+            <a class="btn btn-outline-light me-2" routerLink="/login">Login</a>
+            <a class="btn" routerLink="/register" style="background-color: #ff9900; color: white;">Register</a>
+          </div>
+        </ng-template>
+
+      </div>
     </div>
   </nav>
 </header>

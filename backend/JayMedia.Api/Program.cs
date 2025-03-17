@@ -75,38 +75,40 @@ try
     };
   });
 
+  builder.Services.AddEndpointsApiExplorer();
+
   // Add Swagger Configuration for testing Authentication from Swagger UI
   builder.Services.AddSwaggerGen(options => 
   {
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme 
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-      Description = "Enter 'Bearer {token}'",
+      Description = "Enter '{your token}' in the text box below. Example: Bearer eyJhbGciOiJIUz...",
       Name = "Authorization",
       In = ParameterLocation.Header,
       Type = SecuritySchemeType.Http,
-      Scheme = "bearer"
+      Scheme = "Bearer"
     });
 
-    options.OperationFilter<SecurityRequirementsOperationFilter>();
-
-    // options.AddSecurityRequirement(new OpenApiSecurityRequirement 
-    // {
-    //   {
-    //     new OpenApiSecurityScheme
-    //     {
-    //       Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
-    //     },
-    //     new List<string>()
-    //   }
-    // });
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+      {
+        new OpenApiSecurityScheme
+        {
+          Reference = new OpenApiReference
+          {
+            Type = ReferenceType.SecurityScheme,
+            Id = "Bearer"
+          }
+        },
+        new List<string>()
+      }
+    });
   });
   // -------------------------------------------- //
 
   // Services are injected here to be available app wide
   builder.Services.AddScoped<IAuth, AuthService>();
-
-  builder.Services.AddEndpointsApiExplorer();
-  builder.Services.AddSwaggerGen();
+  builder.Services.AddScoped<IUser, UserService>();
 
   builder.Services.AddAuthorization();
 
@@ -132,9 +134,9 @@ try
 
   app.UseHttpsRedirection();
 
-  app.UseAuthentication();
-
   app.UseRouting();
+
+  app.UseAuthentication();
 
   app.UseAuthorization();
 
