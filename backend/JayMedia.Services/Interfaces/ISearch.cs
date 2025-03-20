@@ -5,7 +5,12 @@ namespace JayMedia.Services.Interfaces;
 
 public interface ISearch
 {
+// OpenVerse Auth
   Task<OpenVerseRegisterResp> RegisterOpenVerse(OpenVerseRegisterReq req);
   Task<OpenVerseTokenResp> TokenOpenVerse(OpenVerseTokenReq req);
   Task<OpenVerseKeyInfoResp> KeyInfoOpenVerse();
+
+// OpenVerse Search
+  Task<OpenVerseImageSearchResp> ImagesSearch(string query);
+
 }

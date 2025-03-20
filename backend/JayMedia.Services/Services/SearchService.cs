@@ -149,7 +149,46 @@ public class SearchService : ISearch
     }
   }
 
-  
+// OpenVerse Search
+  public async Task<OpenVerseImageSearchResp> ImagesSearch(string query) 
+  {
+    try 
+    {
+      // no forget to save in db after consuming in angular
+      string url = $"{_baseUrl}/images/";
+      var options = new RestClientOptions(url) 
+      {
+        RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true,
+      };
+      RestClient client = new RestClient(options);
+      RestRequest request = new RestRequest() { Method = Method.Get };
+      request.AddHeader("Authorization", $"Bearer {_apiToken}");
+      request.AddHeader("content-type", "application/json");
+      request.AddQueryParameter("q", query);
+      RestResponse response = await client.ExecuteAsync(request);
+      var content = response.Content;
+      _logger.LogWarning($"Response from Images Search with url----{url}---- {response.Content}");
+
+      if (content == null) 
+      {
+        _logger.LogWarning($"Cannot get openverse Images Search-----{content} is null-----");
+        return new OpenVerseImageSearchResp();
+      }
+      var result = JsonConvert.DeserializeObject<OpenVerseImageSearchResp>(content);
+      if (result == null) 
+      {
+        _logger.LogWarning($"Cannot get openverse Images Search-----{result} is null-----");
+        return new OpenVerseImageSearchResp();
+      }
+
+      return result;
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError($"AN ERROR OCCURRED... => {ex.Message}");
+      return new OpenVerseImageSearchResp();
+    }
+  }
 
 
 

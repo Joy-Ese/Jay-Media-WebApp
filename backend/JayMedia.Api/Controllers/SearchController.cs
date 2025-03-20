@@ -11,6 +11,7 @@ namespace JayMedia.Api.Controllers
   {
     private ISearch _searchService = searchService;
 
+// OpenVerse Auth
     [HttpPost("RegisterOpenVerse")]
     public async Task<IActionResult> RegisterOpenVerse(OpenVerseRegisterReq req)
     {
@@ -31,6 +32,17 @@ namespace JayMedia.Api.Controllers
       var result = await _searchService.KeyInfoOpenVerse();
       return Ok(result);
     }
+
+// OpenVerse Search
+    [HttpGet("ImagesSearch")]
+    public async Task<IActionResult> ImagesSearch(string query)
+    {
+      var result = await _searchService.ImagesSearch(query);
+      return Ok(result);
+    }
+
+
+
 
   }
 }
