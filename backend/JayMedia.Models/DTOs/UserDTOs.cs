@@ -46,5 +46,44 @@ public class UserDetailsModel
   public string Email { get; set; } = string.Empty;
 }
 
+public class OpenVerseRegisterReq 
+{
+  public string name { get; set; } = string.Empty;
+  public string description { get; set; } = string.Empty;
+  public string email { get; set; } = string.Empty;
+}
+
+public class OpenVerseRegisterResp 
+{
+  public string msg { get; set; } = string.Empty;
+  public string name { get; set; } = string.Empty;
+  public string client_id { get; set; } = string.Empty;
+  public string client_secret { get; set; } = string.Empty;
+}
+
+public class OpenVerseTokenReq 
+{
+  public string grant_type { get; set; } = string.Empty;
+  public string client_secret { get; set; } = string.Empty;
+  public string client_id { get; set; } = string.Empty;
+}
+
+public class OpenVerseTokenResp 
+{
+  public string access_token { get; set; } = string.Empty;
+  public string scope { get; set; } = string.Empty;
+  public int expires_in { get; set; }
+  public string token_type { get; set; } = string.Empty;
+}
+
+public class OpenVerseKeyInfoResp 
+{
+  public int requests_this_minute { get; set; }
+  public int requests_today { get; set; }
+  public string rate_limit_model { get; set; } = string.Empty;
+}
+
+
+
 
 

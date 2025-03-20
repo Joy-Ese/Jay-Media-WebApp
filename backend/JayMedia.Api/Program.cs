@@ -109,6 +109,7 @@ try
   // Services are injected here to be available app wide
   builder.Services.AddScoped<IAuth, AuthService>();
   builder.Services.AddScoped<IUser, UserService>();
+  builder.Services.AddScoped<ISearch, SearchService>();
 
   builder.Services.AddAuthorization();
 

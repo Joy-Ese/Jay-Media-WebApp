@@ -21,6 +21,7 @@ public class UserService : IUser
     _logger.LogDebug(1, "Nlog injected into UserService");
   }
 
+// fetch user details for frontend
   public async Task<UserDetailsModel> GetUserDetails() 
   {
     try 
