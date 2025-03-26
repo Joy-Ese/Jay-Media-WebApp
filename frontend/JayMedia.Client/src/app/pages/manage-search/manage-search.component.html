@@ -1,1 +1,82 @@
-<p>manage-search works!</p>
+<div class="manage-search-container">
+  <div class="header">
+    <h2 class="page-title">Manage Searches</h2>
+    <div class="header-actions">
+      <button 
+        mat-icon-button 
+        class="profile-icon" 
+        (click)="openEditProfileDialog()"
+        aria-label="Edit Profile"
+      >
+        <mat-icon>account_circle</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <div class="search-actions">
+    <button 
+      mat-raised-button 
+      color="accent" 
+      (click)="openDeletedSearchesDialog()"
+    >
+      <mat-icon>restore</mat-icon>
+      View Deleted Searches
+    </button>
+  </div>
+
+  <mat-card class="search-history-card">
+    <mat-card-content>
+      <table mat-table [dataSource]="searchItems" class="search-table">
+        <!-- Search Term Column -->
+        <ng-container matColumnDef="searchTerm">
+          <th mat-header-cell *matHeaderCellDef>Search Term</th>
+          <td mat-cell *matCellDef="let element">{{element.searchTerm}}</td>
+        </ng-container>
+
+        <!-- Date Column -->
+        <ng-container matColumnDef="date">
+          <th mat-header-cell *matHeaderCellDef>Date</th>
+          <td mat-cell *matCellDef="let element">{{element.date | date:'mediumDate'}}</td>
+        </ng-container>
+
+        <!-- Category Column -->
+        <ng-container matColumnDef="category">
+          <th mat-header-cell *matHeaderCellDef>Category</th>
+          <td mat-cell *matCellDef="let element">{{element.category}}</td>
+        </ng-container>
+
+        <!-- Results Count Column -->
+        <ng-container matColumnDef="resultsCount">
+          <th mat-header-cell *matHeaderCellDef>Results</th>
+          <td mat-cell *matCellDef="let element">{{element.resultsCount}}</td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let element">
+            <button 
+              mat-icon-button 
+              color="primary" 
+              (click)="editSearch(element)"
+              aria-label="Edit Search"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button 
+              mat-icon-button 
+              color="warn" 
+              (click)="deleteSearch(element)"
+              aria-label="Delete Search"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    </mat-card-content>
+  </mat-card>
+</div>
