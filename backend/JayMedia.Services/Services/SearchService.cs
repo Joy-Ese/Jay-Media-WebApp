@@ -1,0 +1,166 @@
+using System;
+using JayMedia.Data.Data;
+using JayMedia.Models.DTOs;
+using JayMedia.Services.Interfaces;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using RestSharp;
+
+namespace JayMedia.Services.Services;
+
+public class SearchService : ISearch
+{
+  private readonly string _baseUrl;
+  private readonly DataContext _context;
+  private readonly IHttpContextAccessor _httpContextAccessor;
+  private readonly IConfiguration _configuration;
+  private readonly ILogger<SearchService> _logger;
+
+  public SearchService(DataContext context, IHttpContextAccessor httpContextAccessor, IConfiguration configuration, ILogger<SearchService> logger) {
+    _baseUrl = configuration["OpenVerseBaseUrl"] ?? throw new Exception("Openverse Base Url is missing");
+    _context = context;
+    _httpContextAccessor = httpContextAccessor;
+    _configuration = configuration;
+    _logger = logger;
+    _logger.LogDebug(1, "Nlog injected into SearchService");
+  }
+
+// OpenVerse Auth
+  public async Task<OpenVerseRegisterResp> RegisterOpenVerse(OpenVerseRegisterReq req) 
+  {
+    try 
+    {
+      string url = $"{_baseUrl}/auth_tokens/register/";
+      var body = JsonConvert.SerializeObject(req);
+      var client = new RestClient(url);
+      var request = new RestRequest(url, Method.Post);
+      request.AddHeader("Content-Type", "application/json");
+
+      request.AddParameter("application/json", body, ParameterType.RequestBody);
+      RestResponse response = await client.ExecuteAsync(request);
+      var content = response.Content;
+
+      if (content == null) 
+      {
+        _logger.LogWarning($"Cannot register openverse api-----{content} is null-----");
+        return new OpenVerseRegisterResp();
+      }
+      var result = JsonConvert.DeserializeObject<OpenVerseRegisterResp>(content);
+      if (result == null) 
+      {
+        _logger.LogWarning($"Cannot register openverse api-----{result} is null-----");
+        return new OpenVerseRegisterResp();
+      }
+
+      return result;
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError($"AN ERROR OCCURRED... => {ex.Message}");
+      return new OpenVerseRegisterResp();
+    }
+  }
+
+  public async Task<OpenVerseTokenResp> TokenOpenVerse(OpenVerseTokenReq req) 
+  {
+    try 
+    {
+      var formData = new Dictionary<string, string>
+      {
+        { "grant_type", req.grant_type },
+        { "client_secret",req.client_secret },
+        { "client_id", req.client_id }
+      };
+
+      string url = $"{_baseUrl}/auth_tokens/token/";
+      var client = new RestClient(url);
+      var request = new RestRequest(url, Method.Post);
+      request.AddHeader("Content-Type", "application/x-www-form-urlencoded");
+
+      // Add form data
+      foreach (var item in formData)
+      {
+        request.AddParameter(item.Key, item.Value);
+      }
+
+      RestResponse response = await client.ExecuteAsync(request);
+      var content = response.Content;
+
+      if (content == null) 
+      {
+        _logger.LogWarning($"Cannot get Token openverse api-----{content} is null-----");
+        return new OpenVerseTokenResp();
+      }
+      var result = JsonConvert.DeserializeObject<OpenVerseTokenResp>(content);
+      if (result == null) 
+      {
+        _logger.LogWarning($"Cannot get Token openverse api-----{result} is null-----");
+        return new OpenVerseTokenResp();
+      }
+
+      return result;
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError($"AN ERROR OCCURRED... => {ex.Message}");
+      return new OpenVerseTokenResp();
+    }
+  }
+
+// OpenVerse Search
+  public async Task<OpenVerseImageSearchResp> ImagesSearch(string query) 
+  {
+    try 
+    {
+      // Get APIToken for OpenVerse
+      OpenVerseTokenReq tokenReq = new () 
+      {
+        grant_type = "client_credentials",
+        client_secret = "CX2iqMbLExrykBktQH2w4Z1IxYuTPtAund3wbLMgFp3wk5VJItJfir6L8VDMzECGn9ToZznRzisKcT8iiDKtkjN4qYlaD54yhLJ4x8NddWbFy5j7pmKvMO35sVtRICPl",
+        client_id = "KM1YhvRjubVUKxXRfLzFqB663wauScsTpseUvu0e"
+      };
+      var accessT = await TokenOpenVerse(tokenReq);
+
+      // no forget to save in db after consuming in angular ---- dont forget to save searches to db
+      string url = $"{_baseUrl}/images/";
+      var options = new RestClientOptions(url) 
+      {
+        RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true,
+      };
+      RestClient client = new RestClient(options);
+      RestRequest request = new RestRequest() { Method = Method.Get };
+      request.AddHeader("Authorization", $"Bearer {accessT.access_token}");
+      request.AddHeader("content-type", "application/json");
+      request.AddQueryParameter("q", query);
+      RestResponse response = await client.ExecuteAsync(request);
+      var content = response.Content;
+      _logger.LogWarning($"Response from Images Search with url----{url}---- {response.Content}");
+
+      if (content == null) 
+      {
+        _logger.LogWarning($"Cannot get openverse Images Search-----{content} is null-----");
+        return new OpenVerseImageSearchResp();
+      }
+      var result = JsonConvert.DeserializeObject<OpenVerseImageSearchResp>(content);
+      if (result == null) 
+      {
+        _logger.LogWarning($"Cannot get openverse Images Search-----{result} is null-----");
+        return new OpenVerseImageSearchResp();
+      }
+
+      return result;
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError($"AN ERROR OCCURRED... => {ex.Message}");
+      return new OpenVerseImageSearchResp();
+    }
+  }
+
+
+
+
+
+}

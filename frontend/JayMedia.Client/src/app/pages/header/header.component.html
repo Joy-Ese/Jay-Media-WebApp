@@ -31,9 +31,12 @@
 
         <div *ngIf="userName; else loggedOut">
           <div class="d-flex mt-3">
-            <p class="btn btn-outline-light me-2">Welcome, {{ userName }}! 🎉</p>
-            <p class="btn" routerLink="/register" style="background-color: #ff9900; color: white;">
+            <p class="btn me-2" routerLink="/register" style="background-color: #ff9900; color: white;">
               Manage Searches
+            </p>
+            <p class="btn btn-outline-light me-2">Welcome, {{ userName }}! 🎉</p>
+            <p class="btn" style="background-color: #ff9900; color: white;" (click)="logout()">
+              Log Out
             </p>
           </div>
         </div>

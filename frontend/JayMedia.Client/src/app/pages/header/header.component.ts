@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -18,14 +19,25 @@ export class HeaderComponent implements OnInit{
 
   isMenuCollapsed = true;
 
-  constructor() { }
+  constructor(public authService: AuthService) { }
   
   ngOnInit(): void {
-    this.userName = localStorage.getItem("userId");
-    console.log(this.userName);
+    // this.userName = localStorage.getItem("userId");
+    // console.log(this.userName);
+
+    if (typeof window !== 'undefined' && localStorage) {
+      this.userName = localStorage.getItem("userId");
+      console.log(this.userName);
+    } else {
+      console.warn('localStorage is not available.');
+    }
   }
 
   toggleMenu() {
     this.isMenuCollapsed = !this.isMenuCollapsed;
+  }
+
+  logout() {
+    this.authService.logoutUser();
   }
 }
