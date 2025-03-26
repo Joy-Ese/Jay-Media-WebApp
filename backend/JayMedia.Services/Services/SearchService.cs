@@ -13,7 +13,6 @@ namespace JayMedia.Services.Services;
 public class SearchService : ISearch
 {
   private readonly string _baseUrl;
-  private readonly string _apiToken;
   private readonly DataContext _context;
   private readonly IHttpContextAccessor _httpContextAccessor;
   private readonly IConfiguration _configuration;
@@ -21,7 +20,6 @@ public class SearchService : ISearch
 
   public SearchService(DataContext context, IHttpContextAccessor httpContextAccessor, IConfiguration configuration, ILogger<SearchService> logger) {
     _baseUrl = configuration["OpenVerseBaseUrl"] ?? throw new Exception("Openverse Base Url is missing");
-    _apiToken = configuration["OpenverseApiToken"] ?? throw new Exception("Openverse API token is missing");
     _context = context;
     _httpContextAccessor = httpContextAccessor;
     _configuration = configuration;
@@ -111,50 +109,21 @@ public class SearchService : ISearch
     }
   }
 
-  public async Task<OpenVerseKeyInfoResp> KeyInfoOpenVerse() 
-  {
-    try 
-    {
-      string url = $"{_baseUrl}/rate_limit/";
-      var options = new RestClientOptions(url) 
-      {
-        RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true,
-      };
-      RestClient client = new RestClient(options);
-      RestRequest request = new RestRequest() { Method = Method.Get };
-      request.AddHeader("Authorization", $"Bearer {_apiToken}");
-      request.AddHeader("content-type", "application/json");
-      RestResponse response = await client.ExecuteAsync(request);
-      var content = response.Content;
-      _logger.LogWarning($"Response from Key Info with url----{url}---- {response.Content}");
-
-      if (content == null) 
-      {
-        _logger.LogWarning($"Cannot get openverse KeyInfo-----{content} is null-----");
-        return new OpenVerseKeyInfoResp();
-      }
-      var result = JsonConvert.DeserializeObject<OpenVerseKeyInfoResp>(content);
-      if (result == null) 
-      {
-        _logger.LogWarning($"Cannot get openverse KeyInfo-----{result} is null-----");
-        return new OpenVerseKeyInfoResp();
-      }
-
-      return result;
-    }
-    catch (Exception ex)
-    {
-      _logger.LogError($"AN ERROR OCCURRED... => {ex.Message}");
-      return new OpenVerseKeyInfoResp();
-    }
-  }
-
 // OpenVerse Search
   public async Task<OpenVerseImageSearchResp> ImagesSearch(string query) 
   {
     try 
     {
-      // no forget to save in db after consuming in angular
+      // Get APIToken for OpenVerse
+      OpenVerseTokenReq tokenReq = new () 
+      {
+        grant_type = "client_credentials",
+        client_secret = "CX2iqMbLExrykBktQH2w4Z1IxYuTPtAund3wbLMgFp3wk5VJItJfir6L8VDMzECGn9ToZznRzisKcT8iiDKtkjN4qYlaD54yhLJ4x8NddWbFy5j7pmKvMO35sVtRICPl",
+        client_id = "KM1YhvRjubVUKxXRfLzFqB663wauScsTpseUvu0e"
+      };
+      var accessT = await TokenOpenVerse(tokenReq);
+
+      // no forget to save in db after consuming in angular ---- dont forget to save searches to db
       string url = $"{_baseUrl}/images/";
       var options = new RestClientOptions(url) 
       {
@@ -162,7 +131,7 @@ public class SearchService : ISearch
       };
       RestClient client = new RestClient(options);
       RestRequest request = new RestRequest() { Method = Method.Get };
-      request.AddHeader("Authorization", $"Bearer {_apiToken}");
+      request.AddHeader("Authorization", $"Bearer {accessT.access_token}");
       request.AddHeader("content-type", "application/json");
       request.AddQueryParameter("q", query);
       RestResponse response = await client.ExecuteAsync(request);

@@ -66,6 +66,51 @@
   color: #6c757d;
 }
 
+/* Grid and Pagination */
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  padding: 20px;
+}
+
+.image-item img {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+}
+
+.image-item img:hover {
+  transform: scale(1.1);
+}
+
+.pagination {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.pagination button {
+  padding: 10px 15px;
+  margin: 0 5px;
+  border: none;
+  background: #ff9900;
+  color: white;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.pagination span {
+  margin-top: 10px;
+}
+
+.pagination button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+/* End */
+
 @media (max-width: 767.98px) {
   .search-section {
     padding: 60px 0 40px;

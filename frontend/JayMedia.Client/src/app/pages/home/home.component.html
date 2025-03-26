@@ -33,6 +33,26 @@
     </div>
   </div>
 
+  <div class="grid-section">
+    <div class="container">
+      <div class="row">
+        <div class="image-grid">
+          <div class="image-item" *ngFor="let image of displayedImages">
+            <img [src]="image.thumbnail" alt="Thumbnail">
+          </div>
+        </div>
+      </div>
+      <div class="row justify-content-center">
+        <div class="pagination">
+          <button (click)="prevPage()" [disabled]="currentPage === 1">Previous</button>
+          <!-- <span>Page {{ currentPage }} of {{ totalPages }}</span> -->
+          <span>Page {{ currentPage }}</span>
+          <button (click)="nextPage()" [disabled]="currentPage * itemsPerPage >= images.length">Next</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="featured-section py-5">
     <div class="container">
       <h2 class="text-center mb-4">Featured Categories</h2>

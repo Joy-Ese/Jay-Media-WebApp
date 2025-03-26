@@ -26,13 +26,6 @@ namespace JayMedia.Api.Controllers
       return Ok(result);
     }
 
-    [HttpGet("KeyInfoOpenVerse")]
-    public async Task<IActionResult> KeyInfoOpenVerse()
-    {
-      var result = await _searchService.KeyInfoOpenVerse();
-      return Ok(result);
-    }
-
 // OpenVerse Search
     [HttpGet("ImagesSearch")]
     public async Task<IActionResult> ImagesSearch(string query)
