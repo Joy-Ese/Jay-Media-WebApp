@@ -3,6 +3,58 @@ using System.ComponentModel.DataAnnotations;
 
 namespace JayMedia.Models.DTOs;
 
+public class Response<T>
+{
+  public Response(T data)
+  {
+    Succeeded = true;
+    Message = string.Empty;
+    Errors = null!;
+    Data = data;
+  }
+  public T Data { get; set; }
+  public bool Succeeded { get; set; }
+  public string[] Errors { get; set; }
+  public string Message { get; set; }
+}
+
+public class PagedResponse<T> : Response<T>
+{
+  public int PageNumber { get; set; }
+  public int PageSize { get; set; }
+  public Uri? FirstPage { get; set; }
+  public Uri? LastPage { get; set; }
+  public int TotalPages { get; set; }
+  public int TotalRecords { get; set; }
+  public Uri? NextPage { get; set; }
+  public Uri? PreviousPage { get; set; }
+
+  public PagedResponse(T data, int pageNumber, int pageSize) : base(data)
+  {
+    PageNumber = pageNumber;
+    PageSize = pageSize;
+    Message = string.Empty;
+    Succeeded = true;
+    Errors = null!;
+  }
+}
+
+public class PaginationFilter 
+{
+  public int PageNumber { get; set; }
+  public int PageSize { get; set; }
+  public PaginationFilter()
+  {
+    this.PageNumber = 1;
+    this.PageSize = 20;
+  }
+  public PaginationFilter(int pageNumber, int pageSize)
+  {
+    this.PageNumber = pageNumber < 1 ? 1 : pageNumber;
+    this.PageSize = pageSize > 20 ? pageSize : pageSize;
+  }
+}
+
 public class ResponseModel
 {
   public bool status { get; set; }
@@ -84,8 +136,7 @@ public class OpenVerseKeyInfoResp
   public string rate_limit_model { get; set; } = string.Empty;
 }
 
-// OpenVerse Search
-// Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
+// Image Search
 public class Warning
 {
   public string code { get; set; } = string.Empty;
@@ -138,7 +189,66 @@ public class OpenVerseImageSearchResp
   public List<Warning>? warnings { get; set; }
 }
 
+// Audio search
+public class OpenVerseAudioSearchResp
+{
+  public int result_count { get; set; }
+  public int page_count { get; set; }
+  public int page_size { get; set; }
+  public int page { get; set; }
+  public List<AudioResult>? results { get; set; }
+  public List<Warning>? warnings { get; set; }
+}
 
+public class AudioResult
+{
+  public string id { get; set; } = string.Empty;
+  public string title { get; set; } = string.Empty;
+  public DateTime indexed_on { get; set; }
+  public string foreign_landing_url { get; set; } = string.Empty;
+  public string url { get; set; } = string.Empty;
+  public string creator { get; set; } = string.Empty;
+  public string creator_url { get; set; } = string.Empty;
+  public string license { get; set; } = string.Empty;
+  public string license_version { get; set; } = string.Empty;
+  public string license_url { get; set; } = string.Empty;
+  public string provider { get; set; } = string.Empty;
+  public string source { get; set; } = string.Empty;
+  public string? category { get; set; } = string.Empty;
+  public List<string>? genres { get; set; }
+  public int? filesize { get; set; }
+  public string? filetype { get; set; } = string.Empty;
+  public List<Tag>? tags { get; set; }
+  public object? alt_files { get; set; }
+  public string attribution { get; set; } = string.Empty;
+  public List<string>? fields_matched { get; set; }
+  public bool mature { get; set; }
+  public AudioSet? audio_set { get; set; }
+  public int? duration { get; set; }
+  public int? bit_rate { get; set; }
+  public int? sample_rate { get; set; }
+  public string thumbnail { get; set; } = string.Empty;
+  public string detail_url { get; set; } = string.Empty;
+  public string related_url { get; set; } = string.Empty;
+  public string waveform { get; set; } = string.Empty;
+  public List<object>? unstable__sensitivity { get; set; }
+}
 
+public class AudioSet
+{
+  public string title { get; set; } = string.Empty;
+  public string foreign_landing_url { get; set; } = string.Empty;
+  public string creator { get; set; } = string.Empty;
+  public string creator_url { get; set; } = string.Empty;
+  public string url { get; set; } = string.Empty;
+  public object? filesize { get; set; }
+  public object? filetype { get; set; }
+}
+
+public class SearchMedia 
+{
+  public OpenVerseAudioSearchResp? audioResult {get; set; }
+  public OpenVerseImageSearchResp? imageResult {get; set; }
+}
 
 

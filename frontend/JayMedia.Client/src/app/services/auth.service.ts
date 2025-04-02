@@ -23,11 +23,6 @@ export class AuthService {
     localStorage.setItem('token', token);
   }
 
-  // Remove token on user logout
-  logout(): void {
-    localStorage.removeItem("token");
-  }
-
   logoutUser() {
     localStorage.removeItem("token");
     localStorage.removeItem("loginResp");

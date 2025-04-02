@@ -34,6 +34,20 @@ namespace JayMedia.Api.Controllers
       return Ok(result);
     }
 
+    [HttpGet("AudiosSearch")]
+    public async Task<IActionResult> AudiosSearch(string query)
+    {
+      var result = await _searchService.AudiosSearch(query);
+      return Ok(result);
+    }
+
+    [HttpGet("SearchMedia")]
+    public async Task<IActionResult> SearchMedia(string query)
+    {
+      var result = await _searchService.SearchMedia(query);
+      return Ok(result);
+    }
+
 
 
 
