@@ -3,6 +3,7 @@ using JayMedia.Data.Data;
 using JayMedia.Models.DTOs;
 using JayMedia.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -13,6 +14,8 @@ namespace JayMedia.Services.Services;
 public class SearchService : ISearch
 {
   private readonly string _baseUrl;
+  private readonly string? clientId;
+  private readonly string? clientSecret;
   private readonly DataContext _context;
   private readonly IHttpContextAccessor _httpContextAccessor;
   private readonly IConfiguration _configuration;
@@ -20,6 +23,8 @@ public class SearchService : ISearch
 
   public SearchService(DataContext context, IHttpContextAccessor httpContextAccessor, IConfiguration configuration, ILogger<SearchService> logger) {
     _baseUrl = configuration["OpenVerseBaseUrl"] ?? throw new Exception("Openverse Base Url is missing");
+    clientId = configuration.GetValue<string>("Client_Id");
+    clientSecret = configuration.GetValue<string>("Client_Secret");
     _context = context;
     _httpContextAccessor = httpContextAccessor;
     _configuration = configuration;
@@ -109,7 +114,7 @@ public class SearchService : ISearch
     }
   }
 
-// OpenVerse Search
+// Images Search
   public async Task<OpenVerseImageSearchResp> ImagesSearch(string query) 
   {
     try 
@@ -118,8 +123,8 @@ public class SearchService : ISearch
       OpenVerseTokenReq tokenReq = new () 
       {
         grant_type = "client_credentials",
-        client_secret = "CX2iqMbLExrykBktQH2w4Z1IxYuTPtAund3wbLMgFp3wk5VJItJfir6L8VDMzECGn9ToZznRzisKcT8iiDKtkjN4qYlaD54yhLJ4x8NddWbFy5j7pmKvMO35sVtRICPl",
-        client_id = "KM1YhvRjubVUKxXRfLzFqB663wauScsTpseUvu0e"
+        client_secret = clientSecret!,
+        client_id = clientId!
       };
       var accessT = await TokenOpenVerse(tokenReq);
 
@@ -159,8 +164,74 @@ public class SearchService : ISearch
     }
   }
 
+// Audios Search
+  public async Task<OpenVerseAudioSearchResp> AudiosSearch(string query) 
+  {
+    try 
+    {
+      // Get APIToken for OpenVerse
+      OpenVerseTokenReq tokenReq = new () 
+      {
+        grant_type = "client_credentials",
+        client_secret = clientSecret!,
+        client_id = clientId!
+      };
+      var accessT = await TokenOpenVerse(tokenReq);
 
+      // no forget to save in db after consuming in angular ---- dont forget to save searches to db
+      string url = $"{_baseUrl}/audio/";
+      var options = new RestClientOptions(url) 
+      {
+        RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true,
+      };
+      RestClient client = new RestClient(options);
+      RestRequest request = new RestRequest() { Method = Method.Get };
+      request.AddHeader("Authorization", $"Bearer {accessT.access_token}");
+      request.AddHeader("content-type", "application/json");
+      request.AddQueryParameter("q", query);
+      RestResponse response = await client.ExecuteAsync(request);
+      var content = response.Content;
+      _logger.LogWarning($"Response from Audios Search with url----{url}---- {response.Content}");
 
+      if (content == null) 
+      {
+        _logger.LogWarning($"Cannot get openverse Audios Search-----{content} is null-----");
+        return new OpenVerseAudioSearchResp();
+      }
+      var result = JsonConvert.DeserializeObject<OpenVerseAudioSearchResp>(content);
+      if (result == null) 
+      {
+        _logger.LogWarning($"Cannot get openverse Images Search-----{result} is null-----");
+        return new OpenVerseAudioSearchResp();
+      }
+
+      return result;
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError($"AN ERROR OCCURRED... => {ex.Message}");
+      return new OpenVerseAudioSearchResp();
+    }
+  }
+
+// Returns both Audios and Images Search
+  public async Task<SearchMedia> SearchMedia(string query) 
+  {
+    var bothMediaTypesSearch = new SearchMedia();
+    try 
+    {
+      bothMediaTypesSearch.audioResult = await AudiosSearch(query);
+      bothMediaTypesSearch.imageResult = await ImagesSearch(query);
+      return bothMediaTypesSearch;
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError($"AN ERROR OCCURRED... => {ex.Message}");
+      return new SearchMedia();
+    }
+  }
+
+// Filter Images Search
 
 
 }

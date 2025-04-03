@@ -11,5 +11,7 @@ public interface ISearch
 
 // OpenVerse Search
   Task<OpenVerseImageSearchResp> ImagesSearch(string query);
+  Task<OpenVerseAudioSearchResp> AudiosSearch(string query);
+  Task<SearchMedia> SearchMedia(string query);
 
 }

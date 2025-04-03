@@ -84,8 +84,7 @@ public class OpenVerseKeyInfoResp
   public string rate_limit_model { get; set; } = string.Empty;
 }
 
-// OpenVerse Search
-// Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
+// Image Search
 public class Warning
 {
   public string code { get; set; } = string.Empty;
@@ -138,7 +137,81 @@ public class OpenVerseImageSearchResp
   public List<Warning>? warnings { get; set; }
 }
 
+// Audio search
+public class OpenVerseAudioSearchResp
+{
+  public int result_count { get; set; }
+  public int page_count { get; set; }
+  public int page_size { get; set; }
+  public int page { get; set; }
+  public List<AudioResult>? results { get; set; }
+  public List<Warning>? warnings { get; set; }
+}
 
+public class AudioResult
+{
+  public string id { get; set; } = string.Empty;
+  public string title { get; set; } = string.Empty;
+  public DateTime indexed_on { get; set; }
+  public string foreign_landing_url { get; set; } = string.Empty;
+  public string url { get; set; } = string.Empty;
+  public string creator { get; set; } = string.Empty;
+  public string creator_url { get; set; } = string.Empty;
+  public string license { get; set; } = string.Empty;
+  public string license_version { get; set; } = string.Empty;
+  public string license_url { get; set; } = string.Empty;
+  public string provider { get; set; } = string.Empty;
+  public string source { get; set; } = string.Empty;
+  public string? category { get; set; } = string.Empty;
+  public List<string>? genres { get; set; }
+  public int? filesize { get; set; }
+  public string? filetype { get; set; } = string.Empty;
+  public List<Tag>? tags { get; set; }
+  public object? alt_files { get; set; }
+  public string attribution { get; set; } = string.Empty;
+  public List<string>? fields_matched { get; set; }
+  public bool mature { get; set; }
+  public AudioSet? audio_set { get; set; }
+  public int? duration { get; set; }
+  public int? bit_rate { get; set; }
+  public int? sample_rate { get; set; }
+  public string thumbnail { get; set; } = string.Empty;
+  public string detail_url { get; set; } = string.Empty;
+  public string related_url { get; set; } = string.Empty;
+  public string waveform { get; set; } = string.Empty;
+  public List<object>? unstable__sensitivity { get; set; }
+}
 
+public class AudioSet
+{
+  public string title { get; set; } = string.Empty;
+  public string foreign_landing_url { get; set; } = string.Empty;
+  public string creator { get; set; } = string.Empty;
+  public string creator_url { get; set; } = string.Empty;
+  public string url { get; set; } = string.Empty;
+  public object? filesize { get; set; }
+  public object? filetype { get; set; }
+}
 
+public class SearchMedia 
+{
+  public OpenVerseAudioSearchResp? audioResult {get; set; }
+  public OpenVerseImageSearchResp? imageResult {get; set; }
+}
+
+public class ImageFilters 
+{
+  public string q {get; set; } = string.Empty;
+  public string license {get; set; } = string.Empty;
+  public string category {get; set; } = string.Empty;
+  public string size {get; set; } = string.Empty;
+}
+
+public class AudioFilters 
+{
+  public string q {get; set; } = string.Empty;
+  public string license {get; set; } = string.Empty;
+  public string category {get; set; } = string.Empty;
+  public string length {get; set; } = string.Empty;
+}
 
