@@ -200,8 +200,18 @@ public class SearchMedia
 }
 
 public class ImageFilters 
-{}
+{
+  public string q {get; set; } = string.Empty;
+  public string license {get; set; } = string.Empty;
+  public string category {get; set; } = string.Empty;
+  public string size {get; set; } = string.Empty;
+}
 
 public class AudioFilters 
-{}
+{
+  public string q {get; set; } = string.Empty;
+  public string license {get; set; } = string.Empty;
+  public string category {get; set; } = string.Empty;
+  public string length {get; set; } = string.Empty;
+}
 
