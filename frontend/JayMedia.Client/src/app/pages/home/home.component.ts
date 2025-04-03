@@ -20,8 +20,6 @@ export class HomeComponent implements OnInit{
 
   userName: string | null = null;
 
-  isLoggedIn! : boolean; // get userdetails incase you need the status boolean
-
   mediaType = "";
 
   images: any[] = [];
@@ -34,7 +32,7 @@ export class HomeComponent implements OnInit{
   
   currentPage: number = 1;
 
-  itemsPerPage: number = 10;
+  itemsPerPage: number = 5;
 
   // New filter properties
   showFilters: boolean = false;
@@ -45,15 +43,14 @@ export class HomeComponent implements OnInit{
 
   // Media-specific filter objects
   imageFilters = {
-    filetype: '',
+    imgFiletype: '',
     imgCategory: '',
   };
   
   audioFilters = {
     duration: '',
     audCategory: '',
-    filetype: '',
-    // filetype: false
+    genres: '',
   };
   
 
@@ -94,26 +91,31 @@ export class HomeComponent implements OnInit{
     });
   }
 
-  // updateDisplayedMedia() {
-  //   // Apply filters and pagination
-  //   let filteredImages = this.applyFilters(this.images);
-
-  //   const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-  //   const endIndex = startIndex + this.itemsPerPage;
-  //   this.displayedImages = this.images.slice(startIndex, endIndex);
-  // }
   updateDisplayedMedia() {
     // Apply filters and pagination
-    let filteredImages = this.applyFilters(this.images);
+    //   let filteredImages = this.applyFilters(this.images);
 
-
+    // Interleave images and audios
+    const combinedResults = [];
+    const maxLength = Math.max(this.images.length, this.audios.length);
+    
+    for (let i = 0; i < maxLength; i++) {
+      if (i < this.images.length) {
+        combinedResults.push({ ...this.images[i], type: 'image' });
+      }
+      if (i < this.audios.length) {
+        combinedResults.push({ ...this.audios[i], type: 'audio' });
+      }
+    }
+    
+    // Apply pagination
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
+    this.displayedMedia = combinedResults.slice(startIndex, endIndex);
     
-    this.displayedMedia = this.images.slice(startIndex, endIndex);
-    this.displayedMedia = this.audios.slice(startIndex, endIndex);
     console.log(this.displayedMedia);
   }
+  
 
   applyFilters(data: any[]): any[] {
     // This is a placeholder function - implement actual filtering logic based on your data structure
@@ -131,11 +133,11 @@ export class HomeComponent implements OnInit{
     
     // Apply media-specific filters
     if (this.selectedMediaType === 'image') {
-      if (this.imageFilters.filetype) {
-        // Example: result = result.filter(item => item.filetype === this.imageFilters.filetype);
+      if (this.imageFilters.imgFiletype) {
+        // Example: result = result.filter(item => item.imgFiletype === this.imageFilters.imgFiletype);
       }
       if (this.imageFilters.imgCategory) {
-        // Example: result = result.filter(item => item.imageType === this.imageFilters.imgCategory);
+        // Example: result = result.filter(item => item.imgCategory === this.imageFilters.imgCategory);
       }
     } else if (this.selectedMediaType === 'audio') {
       // Apply audio filters
@@ -145,7 +147,7 @@ export class HomeComponent implements OnInit{
       if (this.audioFilters.audCategory) {
         // Filter by category
       }
-      if (this.audioFilters.filetype) {
+      if (this.audioFilters.genres) {
         // Filter by filetype attribute
       }
     }
@@ -162,10 +164,6 @@ export class HomeComponent implements OnInit{
           // Sort by oldest
           // result.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
           break;
-        case 'popular':
-          // Sort by popularity
-          // result.sort((a, b) => b.downloads - a.downloads);
-          break;
         default:
           // Default to relevance (no sorting or custom relevance algorithm)
           break;
@@ -174,20 +172,6 @@ export class HomeComponent implements OnInit{
     
     return result;
   }
-
-  // nextPage() {
-  //   if (this.currentPage < Math.ceil(this.images.length / this.itemsPerPage)) {
-  //     this.currentPage++;
-  //     this.updateDisplayedMedia();
-  //   }
-  // }
-
-  // prevPage() {
-  //   if (this.currentPage > 1) {
-  //     this.currentPage--;
-  //     this.updateDisplayedMedia();
-  //   }
-  // }
 
   nextPage() {
     if (this.currentPage * this.itemsPerPage < Math.max(this.images.length, this.audios.length)) {
@@ -203,12 +187,11 @@ export class HomeComponent implements OnInit{
     }
   }
 
-
   // New filter methods
   toggleFilters(): void {
     this.showFilters = !this.showFilters;
   }
-  
+
   clearAllFilters(): void {
     // Reset all filter values
     this.selectedMediaType = '';
@@ -217,14 +200,14 @@ export class HomeComponent implements OnInit{
     
     // Reset media-specific filters
     this.imageFilters = {
-      filetype: '',
+      imgFiletype: '',
       imgCategory: '',
     };
     
     this.audioFilters = {
       duration: '',
       audCategory: '',
-      filetype: ''
+      genres: ''
     };
     
     // Update filter status
@@ -239,14 +222,14 @@ export class HomeComponent implements OnInit{
     // Reset the specific media type filters when media type changes
     if (this.selectedMediaType === 'image') {
       this.imageFilters = {
-        filetype: '',
+        imgFiletype: '',
         imgCategory: '',
       };
     } else if (this.selectedMediaType === 'audio') {
       this.audioFilters = {
         duration: '',
         audCategory: '',
-        filetype: ''
+        genres: ''
       };
     }
     
@@ -262,7 +245,7 @@ export class HomeComponent implements OnInit{
       case 'mediaType':
         this.selectedMediaType = '';
         // Reset all specific filters
-        this.audioFilters = { duration: '', audCategory: '', filetype: '' };
+        this.audioFilters = { duration: '', audCategory: '', genres: '' };
         break;
       case 'licenseType':
         this.selectedLicenseType = '';
@@ -271,10 +254,10 @@ export class HomeComponent implements OnInit{
         this.selectedSortBy = 'relevance';
         break;
       // Image filter cases
-      case 'filetype':
-        this.imageFilters.filetype = '';
+      case 'imgFiletype':
+        this.imageFilters.imgFiletype = '';
         break;
-      case 'imageType':
+      case 'imgCategory':
         this.imageFilters.imgCategory = '';
         break;
       // Audio filter cases
@@ -286,8 +269,8 @@ export class HomeComponent implements OnInit{
       case 'audioCategory':
         this.audioFilters.audCategory = '';
         break;
-      case 'filetype':
-        this.audioFilters.filetype = '';
+      case 'genres':
+        this.audioFilters.genres = '';
         break;
     }
     
@@ -305,14 +288,14 @@ export class HomeComponent implements OnInit{
       this.selectedSortBy !== 'relevance' ||
       // Image filters
       (this.selectedMediaType === 'image' && (
-        this.imageFilters.filetype || 
+        this.imageFilters.imgFiletype || 
         this.imageFilters.imgCategory
       )) ||
       // Audio filters
       (this.selectedMediaType === 'audio' && (
         this.audioFilters.duration || 
         this.audioFilters.audCategory || 
-        this.audioFilters.filetype
+        this.audioFilters.genres
       )) 
     );
   }

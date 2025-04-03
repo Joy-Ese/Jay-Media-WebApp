@@ -91,11 +91,12 @@
                     <!-- Image specific filters -->
                     <div class="row" *ngIf="selectedMediaType === 'image'">
                       <div class="col-md-4 mb-3">
-                        <label for="filetype">File Type</label>
-                        <select class="form-select" id="filetype" [(ngModel)]="imageFilters.filetype" name="filetype">
+                        <label for="imgFiletype">File Size</label>
+                        <select class="form-select" id="imgFiletype" [(ngModel)]="imageFilters.imgFiletype" name="imgFiletype">
                           <option value="">Any</option>
-                          <option value="jpg">JPG</option>
-                          <option value="png">PNG</option>
+                          <option value="large">Large</option>
+                          <option value="medium">Medium</option>
+                          <option value="small">Small</option>
                         </select>
                       </div>
                       <div class="col-md-4 mb-3">
@@ -103,8 +104,8 @@
                         <select class="form-select" id="imageType" [(ngModel)]="imageFilters.imgCategory" name="imageType">
                           <option value="">Any</option>
                           <option value="photograph">Photograph</option>
-                          <!-- <option value="illustration">Illustration</option> -->
-                          <!-- <option value="vector">Vector</option> -->
+                          <option value="illustration">Illustration</option>
+                          <option value="digitized_artwork">Digitized Artwork</option>
                         </select>
                       </div>
                     </div>
@@ -115,29 +116,32 @@
                         <label for="audioLength">Duration</label>
                         <select class="form-select" id="audioLength" [(ngModel)]="audioFilters.duration" name="audioLength">
                           <option value="">Any</option>
-                          <option value="short">Short (<30s)</option>
-                          <option value="medium">Medium (30s-2m)</option>
-                          <option value="long">Long (>2m)</option>
+                          <option value="shortest">Shortest</option>
+                          <option value="short">Short</option>
+                          <option value="medium">Medium</option>
+                          <option value="long">Long</option>
                         </select>
                       </div>
                       <div class="col-md-4 mb-3">
                         <label for="audioCategory">Category</label>
                         <select class="form-select" id="audioCategory" [(ngModel)]="audioFilters.audCategory" name="audioCategory">
                           <option value="">Any</option>
+                          <option value="news">News</option>
                           <option value="music">Music</option>
-                          <!-- <option value="sfx">Sound Effects</option> -->
-                          <!-- <option value="voice">Voice</option> -->
+                          <option value="podcast">Podcast</option>
+                          <option value="audiobook">Audiobook</option>
                         </select>
                       </div>
-                      <div class="col-md-4 mb-3">
-                        <label for="filetype">File Type</label>
-                        <select class="form-select" id="filetype" [(ngModel)]="audioFilters.audCategory" name="audioCategory">
+                      <!-- <div class="col-md-4 mb-3">
+                        <label for="genres">Genres</label>
+                        <select class="form-select" id="genres" [(ngModel)]="audioFilters.genres" name="genres">
                           <option value="">Any</option>
-                          <option value="music">Music</option>
-                          <!-- <option value="sfx">Sound Effects</option> -->
-                          <!-- <option value="voice">Voice</option> -->
+                          <option value="dance">Dance</option>
+                          <option value="pop">Pop</option>
+                          <option value="house">House</option>
+                          <option value="electronic">Electronic</option>
                         </select>
-                      </div>
+                      </div> -->
                     </div>
 
                   </div>
@@ -152,6 +156,10 @@
                       </span>
                       <span class="filter-tag" *ngIf="selectedLicenseType">
                         License: {{selectedLicenseType}}
+                        <i class="bi bi-x" (click)="removeFilter('licenseType')"></i>
+                      </span>
+                      <span class="filter-tag" *ngIf="selectedSortBy">
+                        Sorted: {{selectedSortBy}}
                         <i class="bi bi-x" (click)="removeFilter('licenseType')"></i>
                       </span>
                       <!-- Additional dynamic filter tags would be added based on selected filters -->
@@ -178,23 +186,16 @@
       <div class="row">
         <div class="image-grid">
           <div class="image-item" *ngFor="let media of displayedMedia">
-            
-            <!-- <img [src]="media.url" alt="Media"> -->
-            <div *ngIf="media.duration; else imageTemplate">
-              <!-- Display audio -->
-              <div class="audio-item">
-                <audio controls>
-                  <source [src]="media.url" type="audio/mp3">
-                  Your browser does not support the audio element.
-                </audio>
-              </div>
-            </div>
-            <ng-template #imageTemplate>
-              <!-- Display image -->
-              <div class="image-item">
-                <img [src]="media.url" alt="Media">
-              </div>
-            </ng-template>
+            <ng-container *ngIf="media.type === 'image'">
+              <img [src]="media.url" alt="Image Thumbnail">
+            </ng-container>
+
+            <ng-container *ngIf="media.type === 'audio'">
+              <audio controls>
+                <source [src]="media.url" type="audio/mpeg">
+                Your browser does not support the audio element.
+              </audio>
+            </ng-container>
 
           </div>
         </div>

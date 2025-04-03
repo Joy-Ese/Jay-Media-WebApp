@@ -13,7 +13,6 @@ namespace JayMedia.Services.Services;
 
 public class SearchService : ISearch
 {
-  private readonly static string? _baseUri;
   private readonly string _baseUrl;
   private readonly string? clientId;
   private readonly string? clientSecret;
@@ -31,35 +30,6 @@ public class SearchService : ISearch
     _configuration = configuration;
     _logger = logger;
     _logger.LogDebug(1, "Nlog injected into SearchService");
-  }
-
-//  Create Pagination from backend
-  public static Uri GetPageUri(PaginationFilter filter, string route)
-  {
-    var _enpointUri = new Uri(string.Concat(_baseUri, route));
-    var modifiedUri = QueryHelpers.AddQueryString(_enpointUri.ToString(), "pageNumber", filter.PageNumber.ToString());
-    modifiedUri = QueryHelpers.AddQueryString(modifiedUri, "pageSize", filter.PageSize.ToString());
-    return new Uri(modifiedUri);
-  }
-
-  public static PagedResponse<List<T>> CreatePagedReponse<T>(List<T> pagedData, PaginationFilter validFilter, int totalRecords, string route)
-  {
-    var respose = new PagedResponse<List<T>>(pagedData, validFilter.PageNumber, validFilter.PageSize);
-    var totalPages = ((double)totalRecords / (double)validFilter.PageSize);
-    int roundedTotalPages = Convert.ToInt32(Math.Ceiling(totalPages));
-    respose.NextPage =
-        validFilter.PageNumber >= 1 && validFilter.PageNumber < roundedTotalPages
-        ? GetPageUri(new PaginationFilter(validFilter.PageNumber + 1, validFilter.PageSize), route)
-        : null;
-    respose.PreviousPage =
-        validFilter.PageNumber - 1 >= 1 && validFilter.PageNumber <= roundedTotalPages
-        ? GetPageUri(new PaginationFilter(validFilter.PageNumber - 1, validFilter.PageSize), route)
-        : null;
-    respose.FirstPage = GetPageUri(new PaginationFilter(1, validFilter.PageSize), route);
-    respose.LastPage = GetPageUri(new PaginationFilter(roundedTotalPages, validFilter.PageSize), route);
-    respose.TotalPages = roundedTotalPages;
-    respose.TotalRecords = totalRecords;
-    return respose;
   }
 
 // OpenVerse Auth
@@ -244,7 +214,7 @@ public class SearchService : ISearch
     }
   }
 
-
+// Returns both Audios and Images Search
   public async Task<SearchMedia> SearchMedia(string query) 
   {
     var bothMediaTypesSearch = new SearchMedia();
@@ -261,6 +231,7 @@ public class SearchService : ISearch
     }
   }
 
+// Filter Images Search
 
 
 }
