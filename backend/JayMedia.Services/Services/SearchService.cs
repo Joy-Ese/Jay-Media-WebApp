@@ -33,41 +33,6 @@ public class SearchService : ISearch
   }
 
 // OpenVerse Auth
-  public async Task<OpenVerseRegisterResp> RegisterOpenVerse(OpenVerseRegisterReq req) 
-  {
-    try 
-    {
-      string url = $"{_baseUrl}/auth_tokens/register/";
-      var body = JsonConvert.SerializeObject(req);
-      var client = new RestClient(url);
-      var request = new RestRequest(url, Method.Post);
-      request.AddHeader("Content-Type", "application/json");
-
-      request.AddParameter("application/json", body, ParameterType.RequestBody);
-      RestResponse response = await client.ExecuteAsync(request);
-      var content = response.Content;
-
-      if (content == null) 
-      {
-        _logger.LogWarning($"Cannot register openverse api-----{content} is null-----");
-        return new OpenVerseRegisterResp();
-      }
-      var result = JsonConvert.DeserializeObject<OpenVerseRegisterResp>(content);
-      if (result == null) 
-      {
-        _logger.LogWarning($"Cannot register openverse api-----{result} is null-----");
-        return new OpenVerseRegisterResp();
-      }
-
-      return result;
-    }
-    catch (Exception ex)
-    {
-      _logger.LogError($"AN ERROR OCCURRED... => {ex.Message}");
-      return new OpenVerseRegisterResp();
-    }
-  }
-
   public async Task<OpenVerseTokenResp> TokenOpenVerse(OpenVerseTokenReq req) 
   {
     try 
@@ -232,6 +197,110 @@ public class SearchService : ISearch
   }
 
 // Filter Images Search
+  public async Task<OpenVerseImageSearchResp> ImageFiltering(string query, string license, string category, string size) 
+  {
+    try 
+    {
+      // Get APIToken for OpenVerse
+      OpenVerseTokenReq tokenReq = new () 
+      {
+        grant_type = "client_credentials",
+        client_secret = clientSecret!,
+        client_id = clientId!
+      };
+      var accessT = await TokenOpenVerse(tokenReq);
+
+      // no forget to save in db after consuming in angular ---- dont forget to save searches to db
+      string url = $"{_baseUrl}/images/";
+      var options = new RestClientOptions(url) 
+      {
+        RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true,
+      };
+      RestClient client = new RestClient(options);
+      RestRequest request = new RestRequest() { Method = Method.Get };
+      request.AddHeader("Authorization", $"Bearer {accessT.access_token}");
+      request.AddHeader("content-type", "application/json");
+      request.AddQueryParameter("q", query);
+      request.AddQueryParameter("license", license);
+      request.AddQueryParameter("categories", category);
+      request.AddQueryParameter("size", size);
+      RestResponse response = await client.ExecuteAsync(request);
+      var content = response.Content;
+      _logger.LogWarning($"Response from Images Filtering with url----{url}---- {response.Content}");
+
+      if (content == null) 
+      {
+        _logger.LogWarning($"Cannot get openverse Images Filtering-----{content} is null-----");
+        return new OpenVerseImageSearchResp();
+      }
+      var result = JsonConvert.DeserializeObject<OpenVerseImageSearchResp>(content);
+      if (result == null) 
+      {
+        _logger.LogWarning($"Cannot get openverse Images Filtering-----{result} is null-----");
+        return new OpenVerseImageSearchResp();
+      }
+
+      return result;
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError($"AN ERROR OCCURRED... => {ex.Message}");
+      return new OpenVerseImageSearchResp();
+    }
+  }
+
+// Filter Audios Search
+  public async Task<OpenVerseAudioSearchResp> AudioFiltering(string query, string license, string category, string length) 
+  {
+    try 
+    {
+      // Get APIToken for OpenVerse
+      OpenVerseTokenReq tokenReq = new () 
+      {
+        grant_type = "client_credentials",
+        client_secret = clientSecret!,
+        client_id = clientId!
+      };
+      var accessT = await TokenOpenVerse(tokenReq);
+
+      // no forget to save in db after consuming in angular ---- dont forget to save searches to db
+      string url = $"{_baseUrl}/audio/";
+      var options = new RestClientOptions(url) 
+      {
+        RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true,
+      };
+      RestClient client = new RestClient(options);
+      RestRequest request = new RestRequest() { Method = Method.Get };
+      request.AddHeader("Authorization", $"Bearer {accessT.access_token}");
+      request.AddHeader("content-type", "application/json");
+      request.AddQueryParameter("q", query);
+      request.AddQueryParameter("license", license);
+      request.AddQueryParameter("categories", category);
+      request.AddQueryParameter("length", length);
+      RestResponse response = await client.ExecuteAsync(request);
+      var content = response.Content;
+      _logger.LogWarning($"Response from Audio Filtering with url----{url}---- {response.Content}");
+
+      if (content == null) 
+      {
+        _logger.LogWarning($"Cannot get openverse Audio Filtering-----{content} is null-----");
+        return new OpenVerseAudioSearchResp();
+      }
+      var result = JsonConvert.DeserializeObject<OpenVerseAudioSearchResp>(content);
+      if (result == null) 
+      {
+        _logger.LogWarning($"Cannot get openverse Audio Filtering-----{result} is null-----");
+        return new OpenVerseAudioSearchResp();
+      }
+
+      return result;
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError($"AN ERROR OCCURRED... => {ex.Message}");
+      return new OpenVerseAudioSearchResp();
+    }
+  }
 
 
 }

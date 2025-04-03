@@ -12,19 +12,12 @@ namespace JayMedia.Api.Controllers
     private ISearch _searchService = searchService;
 
 // OpenVerse Auth
-    [HttpPost("RegisterOpenVerse")]
-    public async Task<IActionResult> RegisterOpenVerse(OpenVerseRegisterReq req)
-    {
-      var result = await _searchService.RegisterOpenVerse(req);
-      return Ok(result);
-    }
-
-    [HttpPost("TokenOpenVerse")]
-    public async Task<IActionResult> TokenOpenVerse(OpenVerseTokenReq req)
-    {
-      var result = await _searchService.TokenOpenVerse(req);
-      return Ok(result);
-    }
+    // [HttpPost("TokenOpenVerse")]
+    // public async Task<IActionResult> TokenOpenVerse(OpenVerseTokenReq req)
+    // {
+    //   var result = await _searchService.TokenOpenVerse(req);
+    //   return Ok(result);
+    // }
 
 // OpenVerse Search
     [HttpGet("ImagesSearch")]
@@ -45,6 +38,20 @@ namespace JayMedia.Api.Controllers
     public async Task<IActionResult> SearchMedia(string query)
     {
       var result = await _searchService.SearchMedia(query);
+      return Ok(result);
+    }
+
+    [HttpGet("ImageFiltering")]
+    public async Task<IActionResult> ImageFiltering(string query, string license, string category, string size)
+    {
+      var result = await _searchService.ImageFiltering(query, license, category, size);
+      return Ok(result);
+    }
+
+    [HttpGet("AudioFiltering")]
+    public async Task<IActionResult> AudioFiltering(string query, string license, string category, string length)
+    {
+      var result = await _searchService.AudioFiltering(query, license, category, length);
       return Ok(result);
     }
 
