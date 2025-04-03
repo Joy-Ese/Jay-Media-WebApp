@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import { FormsModule } from '@angular/forms';
 import { log } from 'node:console';
 
@@ -16,9 +17,11 @@ import { log } from 'node:console';
 export class HomeComponent implements OnInit{
   baseUrl : string = "http://localhost:5090";
 
+  private toastr = inject(ToastrService);
+
   searchTerm = "";
 
-  userName: string | null = null;
+  userName: string | null | undefined = undefined;
 
   mediaType = "";
 
@@ -50,7 +53,6 @@ export class HomeComponent implements OnInit{
   audioFilters = {
     duration: '',
     audCategory: '',
-    genres: '',
   };
   
 
@@ -62,11 +64,17 @@ export class HomeComponent implements OnInit{
     this.onSearch();
 
     if (typeof window !== 'undefined' && localStorage) {
-      this.userName = localStorage.getItem("userId");
+      this.userName = localStorage.getItem('userName') || undefined;
       console.log(this.userName);
     } else {
       console.warn('localStorage is not available.');
     }
+  }
+
+  showToast() {
+    // this.toastr.success('Operation successful!', 'Success');
+    this.toastr.error('Please login to access filter feature!', 'Error');
+    // Other types: error(), warning(), info()
   }
 
   onSearch() {
@@ -147,9 +155,6 @@ export class HomeComponent implements OnInit{
       if (this.audioFilters.audCategory) {
         // Filter by category
       }
-      if (this.audioFilters.genres) {
-        // Filter by filetype attribute
-      }
     }
     
     // Apply sorting
@@ -189,14 +194,18 @@ export class HomeComponent implements OnInit{
 
   // New filter methods
   toggleFilters(): void {
-    this.showFilters = !this.showFilters;
+    if (!this.userName || this.userName === 'undefined' || this.userName === '') {
+      this.showToast();
+    } else {
+      this.showFilters = !this.showFilters; // Only toggle if user is logged in
+    }
   }
 
   clearAllFilters(): void {
     // Reset all filter values
     this.selectedMediaType = '';
     this.selectedLicenseType = '';
-    this.selectedSortBy = 'relevance';
+    this.selectedSortBy = '';
     
     // Reset media-specific filters
     this.imageFilters = {
@@ -207,7 +216,6 @@ export class HomeComponent implements OnInit{
     this.audioFilters = {
       duration: '',
       audCategory: '',
-      genres: ''
     };
     
     // Update filter status
@@ -229,7 +237,6 @@ export class HomeComponent implements OnInit{
       this.audioFilters = {
         duration: '',
         audCategory: '',
-        genres: ''
       };
     }
     
@@ -245,7 +252,7 @@ export class HomeComponent implements OnInit{
       case 'mediaType':
         this.selectedMediaType = '';
         // Reset all specific filters
-        this.audioFilters = { duration: '', audCategory: '', genres: '' };
+        this.audioFilters = { duration: '', audCategory: '' };
         break;
       case 'licenseType':
         this.selectedLicenseType = '';
@@ -269,9 +276,6 @@ export class HomeComponent implements OnInit{
       case 'audioCategory':
         this.audioFilters.audCategory = '';
         break;
-      case 'genres':
-        this.audioFilters.genres = '';
-        break;
     }
     
     // Update filter status and apply filters
@@ -294,8 +298,7 @@ export class HomeComponent implements OnInit{
       // Audio filters
       (this.selectedMediaType === 'audio' && (
         this.audioFilters.duration || 
-        this.audioFilters.audCategory || 
-        this.audioFilters.genres
+        this.audioFilters.audCategory
       )) 
     );
   }

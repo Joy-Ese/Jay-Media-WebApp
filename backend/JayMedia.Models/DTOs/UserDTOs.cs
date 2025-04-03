@@ -177,19 +177,5 @@ public class SearchMedia
   public OpenVerseImageSearchResp? imageResult {get; set; }
 }
 
-public class ImageFilters 
-{
-  public string query {get; set; } = string.Empty;
-  public string license {get; set; } = string.Empty;
-  public string category {get; set; } = string.Empty;
-  public string size {get; set; } = string.Empty;
-}
 
-public class AudioFilters 
-{
-  public string query {get; set; } = string.Empty;
-  public string license {get; set; } = string.Empty;
-  public string category {get; set; } = string.Empty;
-  public string length {get; set; } = string.Empty;
-}
 

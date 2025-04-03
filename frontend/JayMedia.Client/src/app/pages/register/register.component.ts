@@ -1,6 +1,7 @@
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, inject, Inject, OnInit } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { EncryptionService } from '../../services/encryption.service';
 
@@ -16,6 +17,8 @@ import { EncryptionService } from '../../services/encryption.service';
 })
 export class RegisterComponent implements OnInit{
   baseUrl : string = "http://localhost:5090";
+
+  private toastr = inject(ToastrService);
 
   respMsg : string = "";
 
@@ -55,6 +58,11 @@ export class RegisterComponent implements OnInit{
     return { passwordMismatch: false };
   }
 
+  showToast() {
+    this.toastr.success('Registration successful!', 'Success');
+    // Other types: error(), warning(), info()
+  }
+
   onSubmit(registerData: [key: string]) {
     console.log("🚀 Form submitted");
 
@@ -76,6 +84,7 @@ export class RegisterComponent implements OnInit{
         }
         console.log(decryptedResponse.message);
         if (this.status == true) {
+          this.showToast()
           setTimeout(() => {this.domDocument.location.replace("/login")}, 4000);
         }
       },
