@@ -15,7 +15,10 @@ export class AuthService {
   }
 
   getToken(): string | null {
-    return localStorage.getItem("token"); // Retrieve token from localStorage
+    if (typeof localStorage !== 'undefined') {
+      return localStorage.getItem("token");
+    }
+    return null; // Retrieve token from localStorage
   }
 
   // Save token after login
@@ -27,7 +30,6 @@ export class AuthService {
     localStorage.removeItem("token");
     localStorage.removeItem("loginResp");
     localStorage.removeItem("userDetails");
-    var userId = localStorage.getItem("userId");
     localStorage.clear();
     this.router.navigate(['/login']);
     setTimeout(() => {

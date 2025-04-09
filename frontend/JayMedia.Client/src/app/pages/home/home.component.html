@@ -67,20 +67,6 @@
                         <option value="by-nc-sa">BY-NC-SA</option>
                       </select>
                     </div>
-
-                    <!-- Sort By Filter -->
-                    <div class="col-md-4 mb-3">
-                      <label for="sortBy">Sort By</label>
-                      <select 
-                        class="form-select" 
-                        id="sortBy" 
-                        [(ngModel)]="selectedSortBy"
-                        name="sortBy">
-                        <option value="relevance">All</option>
-                        <option value="newest">Newest First</option>
-                        <option value="oldest">Oldest First</option>
-                      </select>
-                    </div>
                   </div>
 
                   <!-- Dynamic Additional Filters based on media type -->
@@ -145,10 +131,6 @@
                       </span>
                       <span class="filter-tag" *ngIf="selectedLicenseType">
                         License: {{selectedLicenseType}}
-                        <i class="bi bi-x" (click)="removeFilter('licenseType')"></i>
-                      </span>
-                      <span class="filter-tag" *ngIf="selectedSortBy">
-                        Sorted: {{selectedSortBy}}
                         <i class="bi bi-x" (click)="removeFilter('licenseType')"></i>
                       </span>
                       <!-- Additional dynamic filter tags would be added based on selected filters -->

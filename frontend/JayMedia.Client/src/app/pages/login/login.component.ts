@@ -1,6 +1,6 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { EncryptionService } from '../../services/encryption.service';
 import { GoogleAuthService } from '../../services/google-auth.service';
@@ -31,6 +31,7 @@ export class LoginComponent implements OnInit{
   key : any;
 
   constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
     private http: HttpClient,
     private fb: FormBuilder,
     private encryptionService : EncryptionService,
@@ -45,7 +46,11 @@ export class LoginComponent implements OnInit{
   }
 
   ngOnInit(): void {
-    this.googleAuthService.initializeGoogleAuth();
+    if (isPlatformBrowser(this.platformId)) {
+      // Safe to use browser APIs here
+      this.googleAuthService.initializeGoogleAuth();
+    }
+    // this.googleAuthService.initializeGoogleAuth();
   }
 
   onSubmit(loginData: { userName: string, password: string }) {

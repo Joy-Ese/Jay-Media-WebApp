@@ -42,6 +42,12 @@ export class GoogleAuthService {
 
   loadGoogleAuth(): Promise<void> {
     return new Promise((resolve, reject) => {
+      if (typeof window === 'undefined') {
+        // Wehen on the server, resolve with a dummy value or reject
+        resolve();
+        return;
+      }
+
       const checkGoogleLoaded = () => {
         if (window.hasOwnProperty('google') && google.accounts) {
           resolve();
