@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,12 +10,15 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import { DeletedSearchesDialogComponent } from '../../reuseable-components/deleted-searches-dialog/deleted-searches-dialog.component';
 import { EditProfileDialogComponent } from '../../reuseable-components/edit-profile-dialog/edit-profile-dialog.component';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { AuthService } from '../../services/auth.service';
+import { ToastrService } from 'ngx-toastr';
 
 interface SearchItem {
-  id: number;
-  searchTerm: string;
-  date: Date;
+  searchId: number;
+  searchQuery: string;
   category: string;
+  timeStamp: Date;
   resultsCount: number;
 }
 
@@ -37,39 +40,45 @@ interface SearchItem {
   styleUrl: './manage-search.component.css'
 })
 export class ManageSearchComponent implements OnInit{
+  baseUrl : string = "http://localhost:5090";
 
-  searchItems: SearchItem[] = [
-    { 
-      id: 1, 
-      searchTerm: 'Nature Landscapes', 
-      date: new Date('2024-03-15'), 
-      category: 'Images', 
-      resultsCount: 250 
-    },
-    { 
-      id: 2, 
-      searchTerm: 'Electronic Music', 
-      date: new Date('2024-03-20'), 
-      category: 'Audio', 
-      resultsCount: 150 
-    },
-    { 
-      id: 3, 
-      searchTerm: 'Technology Animations', 
-      date: new Date('2024-03-25'), 
-      category: 'Video', 
-      resultsCount: 75 
-    }
-  ];
+  private toastr = inject(ToastrService);
 
-  displayedColumns: string[] = ['searchTerm', 'date', 'category', 'resultsCount', 'actions'];
+  searchItems: any[] = [];
+
+  displayedColumns: string[] = ['searchQuery', 'timeStamp', 'category', 'actions'];
 
   constructor(
     private dialog: MatDialog,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private http: HttpClient,
+    private authService: AuthService,
   ) { }
 
-  ngOnInit(): void { }
+  ngOnInit(): void {
+    this.getActiveSearches();
+  }
+
+  getActiveSearches() {
+    var token = this.authService.getToken();
+
+    const headers = new HttpHeaders({
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    });
+
+    this.http.get<any>(`${this.baseUrl}/api/Search/GetActiveSearches`, {headers: headers})
+    .subscribe({
+      next: (res) => {
+        console.log(res);
+        this.searchItems = res || [];
+      },
+      error: (err) => {
+        console.log(err);
+      },
+    });
+
+  }
 
   openEditProfileDialog(): void {
     const dialogRef = this.dialog.open(EditProfileDialogComponent, {
@@ -85,15 +94,29 @@ export class ManageSearchComponent implements OnInit{
     });
   }
 
-  editSearch(search: SearchItem): void {
-    // Implement edit search logic
-    console.log('Editing search:', search);
-  }
+  deleteSearch(search: SearchItem) {
+    var token = this.authService.getToken();
 
-  deleteSearch(search: SearchItem): void {
-    // Implement delete search logic
-    this.searchItems = this.searchItems.filter(item => item.id !== search.id);
-    console.log('Deleted search:', search);
+    const headers = new HttpHeaders({
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    });
+
+    console.log(search);
+    this.http.put<any>(`${this.baseUrl}/api/Search/RestoreOrDelete?action=D&searchId=${search.searchId}`, {headers: headers})
+    .subscribe({
+      next: (res) => {
+        console.log(res);
+        if (res.status) {
+          this.toastr.success('Search Query successfully deleted!', 'Success');
+        }
+        this.toastr.error('Error occured. Unable to perform action!', 'Error');
+      },
+      error: (err) => {
+        console.log(err);
+      },
+    });
+
   }
 
   openDeletedSearchesDialog(): void {

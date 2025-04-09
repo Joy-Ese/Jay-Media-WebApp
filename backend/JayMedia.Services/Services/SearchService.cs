@@ -270,7 +270,7 @@ public class SearchService : ISearch
         UserSearch newUsersearch = new() 
         {
           SearchQuery = query,
-          Category = "Media",
+          Category = category,
           TimeStamp = DateTime.UtcNow,
           SoftDelete = false,
           UserId = userExists.Id
@@ -346,7 +346,7 @@ public class SearchService : ISearch
         UserSearch newUsersearch = new() 
         {
           SearchQuery = query,
-          Category = "Media",
+          Category = category,
           TimeStamp = DateTime.UtcNow,
           SoftDelete = false,
           UserId = userExists.Id
@@ -380,7 +380,7 @@ public class SearchService : ISearch
 
       var activeSearches = await _context.Searches.Where(x => x.UserId == userID && x.SoftDelete == false).Select(x => new SearchObj
       {
-        serachId = x.Id,
+        searchId = x.Id,
         searchQuery = x.SearchQuery,
         category = x.Category,
         timeStamp = x.TimeStamp,
@@ -411,7 +411,7 @@ public class SearchService : ISearch
 
       var activeSearches = await _context.Searches.Where(x => x.UserId == userID && x.SoftDelete == true).Select(x => new SearchObj
       {
-        serachId = x.Id,
+        searchId = x.Id,
         searchQuery = x.SearchQuery,
         category = x.Category,
         timeStamp = x.TimeStamp,

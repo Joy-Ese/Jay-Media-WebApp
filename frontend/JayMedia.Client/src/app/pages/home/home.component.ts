@@ -187,30 +187,6 @@ export class HomeComponent implements OnInit{
     console.log(this.displayedMedia);
   }
 
-  // nextPage() {
-  //   if (this.showFilters == true) {
-  //     if (this.selectedMediaType == "image") {
-  //       if (this.currentPage * this.itemsPerPage < this.images.length) {
-  //         this.currentPage++;
-  //         this.updateImageMedia();
-  //       }
-  //     }
-
-  //     if (this.selectedMediaType == "audio") {
-  //       if (this.currentPage * this.itemsPerPage < this.audios.length) {
-  //         this.currentPage++;
-  //         this.updateAudioMedia();
-  //       }
-  //     }
-  //   }
-
-
-  //   if (this.currentPage * this.itemsPerPage < Math.max(this.images.length, this.audios.length)) {
-  //     this.currentPage++;
-  //     this.updateDisplayedMedia();
-  //   }
-  // }
-
   nextPage() {
     if (this.showFilters && this.selectedMediaType) {
       if (this.selectedMediaType === "image") {
@@ -256,29 +232,6 @@ export class HomeComponent implements OnInit{
       }
     }
   }
-
-  // prevPage() {
-  //   if (this.showFilters == true) {
-  //     if (this.selectedMediaType == "image") {
-  //       if (this.currentPage > 1) {
-  //         this.currentPage--;
-  //         this.updateImageMedia();
-  //       }
-  //     }
-
-  //     if (this.selectedMediaType == "audio") {
-  //       if (this.currentPage > 1) {
-  //         this.currentPage--;
-  //         this.updateAudioMedia();
-  //       }
-  //     }
-  //   }
-
-  //   if (this.currentPage > 1) {
-  //     this.currentPage--;
-  //     this.updateDisplayedMedia();
-  //   }
-  // }
 
   toggleFilters(): void {
     if (!this.userName || this.userName === 'undefined' || this.userName === '') {

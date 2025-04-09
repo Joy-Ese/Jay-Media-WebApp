@@ -179,7 +179,7 @@ public class SearchMedia
 
 public class SearchObj 
 {
-  public int serachId {get; set; }
+  public int searchId {get; set; }
   public string searchQuery { get; set; } = string.Empty;
   public string category { get; set; } = string.Empty;
   public DateTime? timeStamp {get; set; }
