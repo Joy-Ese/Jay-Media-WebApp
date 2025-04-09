@@ -47,21 +47,6 @@ public class UserDetailsModel
 }
 
 // OpenVerse Auth
-public class OpenVerseRegisterReq 
-{
-  public string name { get; set; } = string.Empty;
-  public string description { get; set; } = string.Empty;
-  public string email { get; set; } = string.Empty;
-}
-
-public class OpenVerseRegisterResp 
-{
-  public string msg { get; set; } = string.Empty;
-  public string name { get; set; } = string.Empty;
-  public string client_id { get; set; } = string.Empty;
-  public string client_secret { get; set; } = string.Empty;
-}
-
 public class OpenVerseTokenReq 
 {
   public string grant_type { get; set; } = string.Empty;
@@ -75,13 +60,6 @@ public class OpenVerseTokenResp
   public string scope { get; set; } = string.Empty;
   public int expires_in { get; set; }
   public string token_type { get; set; } = string.Empty;
-}
-
-public class OpenVerseKeyInfoResp 
-{
-  public int requests_this_minute { get; set; }
-  public int requests_today { get; set; }
-  public string rate_limit_model { get; set; } = string.Empty;
 }
 
 // Image Search
@@ -200,18 +178,8 @@ public class SearchMedia
 }
 
 public class ImageFilters 
-{
-  public string q {get; set; } = string.Empty;
-  public string license {get; set; } = string.Empty;
-  public string category {get; set; } = string.Empty;
-  public string size {get; set; } = string.Empty;
-}
+{}
 
 public class AudioFilters 
-{
-  public string q {get; set; } = string.Empty;
-  public string license {get; set; } = string.Empty;
-  public string category {get; set; } = string.Empty;
-  public string length {get; set; } = string.Empty;
-}
+{}
 
