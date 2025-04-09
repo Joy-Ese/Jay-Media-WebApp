@@ -177,5 +177,9 @@ public class SearchMedia
   public OpenVerseImageSearchResp? imageResult {get; set; }
 }
 
+public class ImageFilters 
+{}
 
+public class AudioFilters 
+{}
 
