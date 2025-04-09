@@ -64,7 +64,7 @@ export class HomeComponent implements OnInit{
     this.onSearch();
 
     if (typeof window !== 'undefined' && localStorage) {
-      this.userName = localStorage.getItem('userName') || undefined;
+      this.userName = localStorage.getItem("userId");
       console.log(this.userName);
     } else {
       console.warn('localStorage is not available.');
@@ -84,7 +84,7 @@ export class HomeComponent implements OnInit{
       "Content-Type": "application/json"
     });
 
-    this.http.get<any>(`${this.baseUrl}/api/Search/SearchMedia?query=${this.searchTerm}`, {headers: headers})
+    this.http.get<any>(`${this.baseUrl}/api/Search/SearchMedia?query=${this.searchTerm}&username=${this.userName}`, {headers: headers})
     .subscribe({
       next: (res) => {
         console.log(res);

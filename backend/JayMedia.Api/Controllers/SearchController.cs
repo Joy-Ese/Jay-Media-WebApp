@@ -1,5 +1,6 @@
 using JayMedia.Models.DTOs;
 using JayMedia.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,28 +21,15 @@ namespace JayMedia.Api.Controllers
     // }
 
 // OpenVerse Search
-    [HttpGet("ImagesSearch")]
-    public async Task<IActionResult> ImagesSearch(string query)
-    {
-      var result = await _searchService.ImagesSearch(query);
-      return Ok(result);
-    }
-
-    [HttpGet("AudiosSearch")]
-    public async Task<IActionResult> AudiosSearch(string query)
-    {
-      var result = await _searchService.AudiosSearch(query);
-      return Ok(result);
-    }
-
     [HttpGet("SearchMedia")]
-    public async Task<IActionResult> SearchMedia(string query)
+    public async Task<IActionResult> SearchMedia(string query, string username)
     {
-      var result = await _searchService.SearchMedia(query);
+      var result = await _searchService.SearchMedia(query, username);
       return Ok(result);
     }
 
     [HttpGet("ImageFiltering")]
+    [Authorize]
     public async Task<IActionResult> ImageFiltering(string query, string license, string category, string size)
     {
       var result = await _searchService.ImageFiltering(query, license, category, size);
@@ -49,13 +37,36 @@ namespace JayMedia.Api.Controllers
     }
 
     [HttpGet("AudioFiltering")]
+    [Authorize]
     public async Task<IActionResult> AudioFiltering(string query, string license, string category, string length)
     {
       var result = await _searchService.AudioFiltering(query, license, category, length);
       return Ok(result);
     }
 
+    [HttpGet("GetActiveSearches")]
+    [Authorize]
+    public async Task<IActionResult> GetActiveSearches()
+    {
+      var result = await _searchService.GetActiveSearches();
+      return Ok(result);
+    }
 
+    [HttpGet("GetInActiveSearches")]
+    [Authorize]
+    public async Task<IActionResult> GetInActiveSearches()
+    {
+      var result = await _searchService.GetInActiveSearches();
+      return Ok(result);
+    }
+
+    [HttpPut("RestoreOrDelete")]
+    [Authorize]
+    public async Task<IActionResult> RestoreOrDelete(string action, int searchId)
+    {
+      var result = await _searchService.RestoreOrDelete(action, searchId);
+      return Ok(result);
+    }
 
 
   }

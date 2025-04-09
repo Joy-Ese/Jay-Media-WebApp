@@ -177,9 +177,10 @@ public class SearchMedia
   public OpenVerseImageSearchResp? imageResult {get; set; }
 }
 
-public class ImageFilters 
-{}
-
-public class AudioFilters 
-{}
-
+public class SearchObj 
+{
+  public int serachId {get; set; }
+  public string searchQuery { get; set; } = string.Empty;
+  public string category { get; set; } = string.Empty;
+  public DateTime? timeStamp {get; set; }
+}

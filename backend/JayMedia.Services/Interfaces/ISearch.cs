@@ -11,8 +11,11 @@ public interface ISearch
 // OpenVerse Search
   Task<OpenVerseImageSearchResp> ImagesSearch(string query);
   Task<OpenVerseAudioSearchResp> AudiosSearch(string query);
-  Task<SearchMedia> SearchMedia(string query);
+  Task<SearchMedia> SearchMedia(string query, string username);
   Task<OpenVerseImageSearchResp> ImageFiltering(string query, string license, string category, string size);
   Task<OpenVerseAudioSearchResp> AudioFiltering(string query, string license, string category, string length);
+  Task<List<SearchObj>> GetActiveSearches();
+  Task<List<SearchObj>> GetInActiveSearches();
+  Task<ResponseModel> RestoreOrDelete(string action, int searchId);
 
 }

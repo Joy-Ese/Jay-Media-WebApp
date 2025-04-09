@@ -1,9 +1,11 @@
 using System;
 using JayMedia.Data.Data;
+using JayMedia.Data.Entities;
 using JayMedia.Models.DTOs;
 using JayMedia.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -93,7 +95,6 @@ public class SearchService : ISearch
       };
       var accessT = await TokenOpenVerse(tokenReq);
 
-      // no forget to save in db after consuming in angular ---- dont forget to save searches to db
       string url = $"{_baseUrl}/images/";
       var options = new RestClientOptions(url) 
       {
@@ -143,7 +144,6 @@ public class SearchService : ISearch
       };
       var accessT = await TokenOpenVerse(tokenReq);
 
-      // no forget to save in db after consuming in angular ---- dont forget to save searches to db
       string url = $"{_baseUrl}/audio/";
       var options = new RestClientOptions(url) 
       {
@@ -180,8 +180,24 @@ public class SearchService : ISearch
   }
 
 // Returns both Audios and Images Search
-  public async Task<SearchMedia> SearchMedia(string query) 
+  public async Task<SearchMedia> SearchMedia(string query, string username) 
   {
+    // Check if user exists
+    var userExists = await _context.Users.FirstOrDefaultAsync(x => x.Username == username);
+    if (userExists != null) 
+    {
+      UserSearch newUsersearch = new() 
+      {
+        SearchQuery = query,
+        Category = "Media",
+        TimeStamp = DateTime.UtcNow,
+        SoftDelete = false,
+        UserId = userExists.Id
+      };
+      await _context.Searches.AddAsync(newUsersearch);
+      await _context.SaveChangesAsync();
+    }
+
     var bothMediaTypesSearch = new SearchMedia();
     try 
     {
@@ -201,6 +217,16 @@ public class SearchService : ISearch
   {
     try 
     {
+      // Get user logged in
+      int userID;
+      if (_httpContextAccessor.HttpContext == null)
+      {
+        return new OpenVerseImageSearchResp();
+      }
+
+      userID = Convert.ToInt32(_httpContextAccessor.HttpContext.User?.FindFirst(CustomClaims.UserId)?.Value);
+      var userExists = await _context.Users.FirstOrDefaultAsync(x => x.Id == userID);
+
       // Get APIToken for OpenVerse
       OpenVerseTokenReq tokenReq = new () 
       {
@@ -210,7 +236,6 @@ public class SearchService : ISearch
       };
       var accessT = await TokenOpenVerse(tokenReq);
 
-      // no forget to save in db after consuming in angular ---- dont forget to save searches to db
       string url = $"{_baseUrl}/images/";
       var options = new RestClientOptions(url) 
       {
@@ -240,6 +265,20 @@ public class SearchService : ISearch
         return new OpenVerseImageSearchResp();
       }
 
+      if (userExists != null) 
+      {
+        UserSearch newUsersearch = new() 
+        {
+          SearchQuery = query,
+          Category = "Media",
+          TimeStamp = DateTime.UtcNow,
+          SoftDelete = false,
+          UserId = userExists.Id
+        };
+        await _context.Searches.AddAsync(newUsersearch);
+        await _context.SaveChangesAsync();
+      }
+
       return result;
     }
     catch (Exception ex)
@@ -254,6 +293,16 @@ public class SearchService : ISearch
   {
     try 
     {
+      // Get user logged in
+      int userID;
+      if (_httpContextAccessor.HttpContext == null)
+      {
+        return new OpenVerseAudioSearchResp();
+      }
+
+      userID = Convert.ToInt32(_httpContextAccessor.HttpContext.User?.FindFirst(CustomClaims.UserId)?.Value);
+      var userExists = await _context.Users.FirstOrDefaultAsync(x => x.Id == userID);
+
       // Get APIToken for OpenVerse
       OpenVerseTokenReq tokenReq = new () 
       {
@@ -263,7 +312,6 @@ public class SearchService : ISearch
       };
       var accessT = await TokenOpenVerse(tokenReq);
 
-      // no forget to save in db after consuming in angular ---- dont forget to save searches to db
       string url = $"{_baseUrl}/audio/";
       var options = new RestClientOptions(url) 
       {
@@ -293,12 +341,142 @@ public class SearchService : ISearch
         return new OpenVerseAudioSearchResp();
       }
 
+      if (userExists != null) 
+      {
+        UserSearch newUsersearch = new() 
+        {
+          SearchQuery = query,
+          Category = "Media",
+          TimeStamp = DateTime.UtcNow,
+          SoftDelete = false,
+          UserId = userExists.Id
+        };
+        await _context.Searches.AddAsync(newUsersearch);
+        await _context.SaveChangesAsync();
+      }
+
       return result;
     }
     catch (Exception ex)
     {
       _logger.LogError($"AN ERROR OCCURRED... => {ex.Message}");
       return new OpenVerseAudioSearchResp();
+    }
+  }
+
+// get ACtive Searches
+  public async Task<List<SearchObj>> GetActiveSearches() 
+  {
+    try 
+    {
+      // Get user logged in
+      int userID;
+      if (_httpContextAccessor.HttpContext == null)
+      {
+        return new List<SearchObj>();
+      }
+
+      userID = Convert.ToInt32(_httpContextAccessor.HttpContext.User?.FindFirst(CustomClaims.UserId)?.Value);
+
+      var activeSearches = await _context.Searches.Where(x => x.UserId == userID && x.SoftDelete == false).Select(x => new SearchObj
+      {
+        serachId = x.Id,
+        searchQuery = x.SearchQuery,
+        category = x.Category,
+        timeStamp = x.TimeStamp,
+      }).OrderByDescending(x => x.timeStamp).ToListAsync();
+
+      return activeSearches;
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError($"AN ERROR OCCURRED... => {ex.Message}");
+      return new List<SearchObj>();
+    }
+  }
+
+// Get InActive Searches
+  public async Task<List<SearchObj>> GetInActiveSearches() 
+  {
+    try
+    {
+      // Get user logged in
+      int userID;
+      if (_httpContextAccessor.HttpContext == null)
+      {
+        return new List<SearchObj>();
+      }
+
+      userID = Convert.ToInt32(_httpContextAccessor.HttpContext.User?.FindFirst(CustomClaims.UserId)?.Value);
+
+      var activeSearches = await _context.Searches.Where(x => x.UserId == userID && x.SoftDelete == true).Select(x => new SearchObj
+      {
+        serachId = x.Id,
+        searchQuery = x.SearchQuery,
+        category = x.Category,
+        timeStamp = x.TimeStamp,
+      }).OrderByDescending(x => x.timeStamp).ToListAsync();
+
+      return activeSearches;
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError($"AN ERROR OCCURRED... => {ex.Message}");
+      return new List<SearchObj>();
+    }
+  }
+
+// Delete or Restore Search
+  public async Task<ResponseModel> RestoreOrDelete(string action, int searchId) 
+  {
+    ResponseModel response = new();
+    try 
+    {
+      // Get user logged in
+      int userID;
+      if (_httpContextAccessor.HttpContext == null)
+      {
+        response.status = false;
+        response.message = "User is not logged in";
+        return response;
+      }
+
+      userID = Convert.ToInt32(_httpContextAccessor.HttpContext.User?.FindFirst(CustomClaims.UserId)?.Value);
+
+      if (action == "R") 
+      {
+        var restoreSearch = await _context.Searches.Where(x => x.Id == searchId && x.UserId == userID).FirstOrDefaultAsync();
+        if (restoreSearch == null) return new ResponseModel{status = false, message = "Unsuccessful"};
+
+        restoreSearch.SoftDelete = false;
+        await _context.SaveChangesAsync();
+
+        response.status = true;
+        response.message = "Search sucessfully restored";
+        return response;
+      }
+
+      if (action == "D") 
+      {
+        var deleteSearch = await _context.Searches.Where(x => x.Id == searchId && x.UserId == userID).FirstOrDefaultAsync();
+        if (deleteSearch == null) return new ResponseModel{status = false, message = "Unsuccessful"};
+
+        deleteSearch.SoftDelete = true;
+        await _context.SaveChangesAsync();
+
+        response.status = true;
+        response.message = "Search sucessfully deleted";
+        return response;
+      }
+
+      return response;
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError($"AN ERROR OCCURRED... => {ex.Message}");
+      response.status = false;
+      response.message = "An exception occured";
+      return response;
     }
   }
 

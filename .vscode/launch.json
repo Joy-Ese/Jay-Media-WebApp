@@ -2,6 +2,12 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "C#: JayMedia.Api Debug",
+      "type": "dotnet",
+      "request": "launch",
+      "projectPath": "${workspaceFolder}/backend/JayMedia.Api/JayMedia.Api.csproj"
+    },
+    {
       "name": ".NET Core Launch (web)",
       "type": "coreclr",
       "request": "launch",

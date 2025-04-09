@@ -26,6 +26,7 @@ public class UserService : IUser
   {
     try 
     {
+      // Get user logged in
       int userID;
       if (_httpContextAccessor.HttpContext == null)
       {
