@@ -1,16 +1,16 @@
 <h2 mat-dialog-title>Deleted Searches</h2>
 <mat-dialog-content>
-  <table mat-table [dataSource]="deletedSearches" class="deleted-searches-table">
+  <table mat-table [dataSource]="dataSource" class="deleted-searches-table">
     <!-- Search Term Column -->
-    <ng-container matColumnDef="searchTerm">
-      <th mat-header-cell *matHeaderCellDef>Search Term</th>
-      <td mat-cell *matCellDef="let element">{{element.searchTerm}}</td>
+    <ng-container matColumnDef="searchQuery">
+      <th mat-header-cell *matHeaderCellDef>Search Query</th>
+      <td mat-cell *matCellDef="let element">{{element.searchQuery}}</td>
     </ng-container>
 
     <!-- Date Column -->
-    <ng-container matColumnDef="date">
+    <ng-container matColumnDef="timeStamp">
       <th mat-header-cell *matHeaderCellDef>Date</th>
-      <td mat-cell *matCellDef="let element">{{element.date | date:'mediumDate'}}</td>
+      <td mat-cell *matCellDef="let element">{{element.timeStamp | date:'mediumDate'}}</td>
     </ng-container>
 
     <!-- Category Column -->

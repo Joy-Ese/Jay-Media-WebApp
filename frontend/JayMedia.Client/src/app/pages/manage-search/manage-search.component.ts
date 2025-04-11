@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
-import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
@@ -19,7 +19,6 @@ interface SearchItem {
   searchQuery: string;
   category: string;
   timeStamp: Date;
-  resultsCount: number;
 }
 
 @Component({
@@ -44,19 +43,21 @@ export class ManageSearchComponent implements OnInit{
 
   private toastr = inject(ToastrService);
 
+  deletedSearchItems: any[] = [];
+
   searchItems: any[] = [];
 
   displayedColumns: string[] = ['searchQuery', 'timeStamp', 'category', 'actions'];
 
   constructor(
     private dialog: MatDialog,
-    private fb: FormBuilder,
     private http: HttpClient,
     private authService: AuthService,
   ) { }
 
   ngOnInit(): void {
     this.getActiveSearches();
+    this.getInActiveSearches();
   }
 
   getActiveSearches() {
@@ -77,7 +78,26 @@ export class ManageSearchComponent implements OnInit{
         console.log(err);
       },
     });
+  }
 
+  getInActiveSearches() {
+    var token = this.authService.getToken();
+
+    const headers = new HttpHeaders({
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    });
+
+    this.http.get<any>(`${this.baseUrl}/api/Search/GetInActiveSearches`, {headers: headers})
+    .subscribe({
+      next: (res) => {
+        console.log(res);
+        this.deletedSearchItems = res || [];
+      },
+      error: (err) => {
+        console.log(err);
+      },
+    });
   }
 
   openEditProfileDialog(): void {
@@ -102,7 +122,7 @@ export class ManageSearchComponent implements OnInit{
       "Authorization": `Bearer ${token}`
     });
 
-    console.log(search);
+    console.log(search.searchId);
     this.http.put<any>(`${this.baseUrl}/api/Search/RestoreOrDelete?action=D&searchId=${search.searchId}`, {headers: headers})
     .subscribe({
       next: (res) => {
@@ -121,8 +141,8 @@ export class ManageSearchComponent implements OnInit{
 
   openDeletedSearchesDialog(): void {
     const dialogRef = this.dialog.open(DeletedSearchesDialogComponent, {
-      width: '600px',
-      data: {} // You can pass deleted searches data here
+      width: '1000px',
+      data: this.deletedSearchItems
     });
 
     dialogRef.afterClosed().subscribe(result => {
