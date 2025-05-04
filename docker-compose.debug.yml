@@ -4,8 +4,8 @@ services:
   jaymediaclient:
     image: jaymediaclient
     build:
-      context: .
-      dockerfile: frontend/Dockerfile
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
       - 4200:4200
     depends_on:
@@ -17,13 +17,12 @@ services:
   jaymediaapi:
     image: jaymediaapi
     build:
-      context: .
-      dockerfile: backend/Dockerfile
+      context: ./backend
+      dockerfile: Dockerfile
       args:
         - configuration=Debug
     ports:
       - 5090:5090
-      - 7000:7000
     depends_on:
       - database
     environment:
@@ -33,7 +32,7 @@ services:
     volumes:
       - ./backend:/app
       - ~/.vsdbg:c:\remote_debugger:rw
-    command: ["dotnet", "watch", "run", "--urls", "http://0.0.0.0:5000"]
+    command: ["dotnet", "watch", "run", "--urls", "http://0.0.0.0:5090"]
 
   database:
     image: postgres:17

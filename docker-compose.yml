@@ -8,8 +8,15 @@ services:
       dockerfile: Dockerfile
     ports:
       - 4200:4200
+    volumes:
+      - ./frontend:/JayMedia.Client:/app    # For live reload (optional)
+      - /app/node_modules                   # Prevents overwriting node_modules with host's
     depends_on:
       - jaymediaapi
+    environment:
+      - API_URL=http://jaymediaapi:5090
+    networks:
+      - jaymedia-network
 
   jaymediaapi:
     image: jaymediaapi
@@ -18,11 +25,17 @@ services:
       dockerfile: Dockerfile
     ports:
       - 5090:5090
-      - 7000:7000
     depends_on:
       - database
     environment:
       - ConnectionStrings__DefaultConnection=Host=database;Port=5432;Username=postgres;Password=Joyeseosa;Database=JayMediaDB
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5090
+      - AllowedOrigins=http://localhost:4200
+    volumes:
+      - ./backend/JayMedia.Api/privateKey.txt:/app/privateKey.txt
+    networks:
+      - jaymedia-network
 
   database:
     image: postgres:17
@@ -35,6 +48,16 @@ services:
       POSTGRES_DB: JayMediaDB
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "JayMediaDB"]
+      interval: 10s
+      retries: 5
+    networks:
+      - jaymedia-network
 
 volumes:
   pgdata:
+
+networks:
+  jaymedia-network:
+    driver: bridge
