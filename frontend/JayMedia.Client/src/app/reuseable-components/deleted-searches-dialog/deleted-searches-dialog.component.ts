@@ -36,7 +36,7 @@ interface DeletedSearchItem {
 })
 export class DeletedSearchesDialogComponent implements OnInit{
   baseUrl : string = "http://localhost:5090";
-  
+
   private toastr = inject(ToastrService);
 
   dataSource!: MatTableDataSource<any>;
@@ -51,7 +51,6 @@ export class DeletedSearchesDialogComponent implements OnInit{
   ) { }
 
   ngOnInit(): void {
-    console.log("opened oooo");
     this.dataSource = new MatTableDataSource(this.data);
   }
 

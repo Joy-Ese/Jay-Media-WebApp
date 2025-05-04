@@ -49,6 +49,9 @@ export class ManageSearchComponent implements OnInit{
 
   displayedColumns: string[] = ['searchQuery', 'timeStamp', 'category', 'actions'];
 
+  userDeets!: string | null;
+  objUserDeets: any[] = [];
+
   constructor(
     private dialog: MatDialog,
     private http: HttpClient,
@@ -56,8 +59,36 @@ export class ManageSearchComponent implements OnInit{
   ) { }
 
   ngOnInit(): void {
-    this.getActiveSearches();
-    this.getInActiveSearches();
+    if (typeof window !== 'undefined' && localStorage) {
+      this.getUserDetails();
+      this.userDeets = localStorage.getItem("userDetails");
+
+      this.objUserDeets = this.userDeets ? JSON.parse(this.userDeets) : { firstname: "", lastname: "" };
+
+      this.getActiveSearches();
+      this.getInActiveSearches();
+    }
+  }
+
+  getUserDetails() {
+    var token = this.authService.getToken();
+
+    const headers = new HttpHeaders({
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    });
+
+    this.http.get<any>(`${this.baseUrl}/api/User/GetUserDetails`, {headers: headers})
+    .subscribe({
+      next: (res) => {
+        console.log(res);
+        localStorage.setItem("userDetails", JSON.stringify(res));
+        localStorage.setItem("userId", res.username);
+      },
+      error: (err) => {
+        console.log(err);
+      }
+    });
   }
 
   getActiveSearches() {
@@ -71,7 +102,6 @@ export class ManageSearchComponent implements OnInit{
     this.http.get<any>(`${this.baseUrl}/api/Search/GetActiveSearches`, {headers: headers})
     .subscribe({
       next: (res) => {
-        console.log(res);
         this.searchItems = res || [];
       },
       error: (err) => {
@@ -91,7 +121,6 @@ export class ManageSearchComponent implements OnInit{
     this.http.get<any>(`${this.baseUrl}/api/Search/GetInActiveSearches`, {headers: headers})
     .subscribe({
       next: (res) => {
-        console.log(res);
         this.deletedSearchItems = res || [];
       },
       error: (err) => {
@@ -103,13 +132,12 @@ export class ManageSearchComponent implements OnInit{
   openEditProfileDialog(): void {
     const dialogRef = this.dialog.open(EditProfileDialogComponent, {
       width: '500px',
-      data: {} // You can pass user data here
+      data: this.objUserDeets // You can pass user data here
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         console.log('Profile updated:', result);
-        // Implement profile update logic
       }
     });
   }

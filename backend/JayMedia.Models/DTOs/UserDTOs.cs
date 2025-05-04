@@ -184,3 +184,10 @@ public class SearchObj
   public string category { get; set; } = string.Empty;
   public DateTime? timeStamp {get; set; }
 }
+
+public class ProfileDto
+{
+  public string firstname { get; set; } = string.Empty;
+  public string lastname { get; set; } = string.Empty;
+}
+
