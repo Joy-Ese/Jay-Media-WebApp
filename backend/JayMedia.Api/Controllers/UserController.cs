@@ -1,3 +1,4 @@
+using JayMedia.Models.DTOs;
 using JayMedia.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -16,6 +17,14 @@ namespace JayMedia.Api.Controllers
     public async Task<IActionResult> GetUserDetails()
     {
       var result = await _userService.GetUserDetails();
+      return Ok(result);
+    }
+
+    [HttpPost("EditUserDetails")]
+    [Authorize]
+    public async Task<IActionResult> EditUserDetails(ProfileDto request) 
+    {
+      var result = await _userService.EditUserDetails(request);
       return Ok(result);
     }
 

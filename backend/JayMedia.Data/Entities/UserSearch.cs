@@ -9,6 +9,10 @@ public class UserSearch
 
   public string SearchQuery { get; set; } = string.Empty;
 
+  public string Category { get; set; } = string.Empty;
+
+  public DateTime? TimeStamp { get; set; }
+
   public bool SoftDelete { get; set; } // this is to ensure the user searches never gets deleted forever
 
   [ForeignKey("User")]

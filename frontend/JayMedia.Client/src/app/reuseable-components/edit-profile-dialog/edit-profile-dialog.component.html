@@ -3,17 +3,12 @@
   <form [formGroup]="profileForm">
     <mat-form-field appearance="outline" class="full-width mt-3">
       <mat-label>First Name</mat-label>
-      <input matInput formControlName="first_name">
+      <input matInput formControlName="firstname">
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Last Name</mat-label>
-      <input matInput formControlName="last_name">
-    </mat-form-field>
-
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Email</mat-label>
-      <input matInput formControlName="email" type="email">
+      <input matInput formControlName="lastname">
     </mat-form-field>
 
   </form>
@@ -23,7 +18,7 @@
   <button 
     mat-raised-button 
     color="primary" 
-    (click)="onSave()"
+    (click)="onSave(profileForm.value)"
     [disabled]="!profileForm.valid"
   >
     Save Changes

@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Component, inject, OnInit } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { FormsModule } from '@angular/forms';
-import { log } from 'node:console';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-home',
@@ -41,7 +41,6 @@ export class HomeComponent implements OnInit{
   showFilters: boolean = false;
   selectedMediaType: string = '';
   selectedLicenseType: string = '';
-  selectedSortBy: string = 'relevance';
   hasActiveFilters: boolean = false;
 
   // Media-specific filter objects
@@ -57,17 +56,16 @@ export class HomeComponent implements OnInit{
   
 
   constructor(
-    private http: HttpClient
+    private http: HttpClient,
+    private authService: AuthService,
   ) { }
   
   ngOnInit(): void {
     this.onSearch();
 
     if (typeof window !== 'undefined' && localStorage) {
-      this.userName = localStorage.getItem('userName') || undefined;
+      this.userName = localStorage.getItem("userId");
       console.log(this.userName);
-    } else {
-      console.warn('localStorage is not available.');
     }
   }
 
@@ -79,30 +77,93 @@ export class HomeComponent implements OnInit{
 
   onSearch() {
     console.log("Searching for:", this.searchTerm);
+    var token = this.authService.getToken();
 
     const headers = new HttpHeaders({
       "Content-Type": "application/json"
     });
 
-    this.http.get<any>(`${this.baseUrl}/api/Search/SearchMedia?query=${this.searchTerm}`, {headers: headers})
-    .subscribe({
-      next: (res) => {
-        console.log(res);
-        this.images = res.imageResult?.results || [];
-        this.audios = res.audioResult?.results || [];
-        this.currentPage = 1;
-        this.updateDisplayedMedia();
-      },
-      error: (err) => {
-        console.log(err);
-      },
-    });
+    // If filter is clicked 
+    if (this.showFilters && this.selectedMediaType) {
+      const headers = new HttpHeaders({
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      });
+
+
+      if (this.selectedMediaType == "image")
+      {
+        this.http.get<any>(`${this.baseUrl}/api/Search/ImageFiltering?query=${this.searchTerm}&license=${this.selectedLicenseType}&category=${this.imageFilters.imgCategory}&size=${this.imageFilters.imgFiletype}`, {headers: headers})
+        .subscribe({
+          next: (res) => {
+            console.log(res);
+            this.images = res.results || [];
+            this.audios = []; // Clear audios...only fetching images
+            this.currentPage = 1;
+            this.updateImageMedia();
+            this.displayedMedia = this.displayedImages;
+          },
+          error: (err) => {
+            console.log(err);
+          },
+        });
+
+      }
+      else if (this.selectedMediaType == "audio") {
+        this.http.get<any>(`${this.baseUrl}/api/Search/AudioFiltering?query=${this.searchTerm}&license=${this.selectedLicenseType}&category=${this.audioFilters.audCategory}&length=${this.audioFilters.duration}`, {headers: headers})
+        .subscribe({
+          next: (res) => {
+            console.log(res);
+            this.audios = res.results || [];
+            this.images = []; // Clear images...only fetching audios
+            this.currentPage = 1;
+            this.updateAudioMedia();
+            this.displayedMedia = this.displayedAudios;
+          },
+          error: (err) => {
+            console.log(err);
+          },
+        });
+
+      }
+    }
+    else {
+      // No filters...fetching both media types
+      this.http.get<any>(`${this.baseUrl}/api/Search/SearchMedia?query=${this.searchTerm}&username=${this.userName}`, {headers: headers})
+      .subscribe({
+        next: (res) => {
+          console.log(res);
+          this.images = res.imageResult?.results || [];
+          this.audios = res.audioResult?.results || [];
+          this.currentPage = 1;
+          this.updateDisplayedMedia();
+        },
+        error: (err) => {
+          console.log(err);
+        },
+      });
+    }
+  }
+
+  updateImageMedia() {
+    // Applying pagination without modifying the image source array
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.displayedImages = this.images.map(item => ({ ...item, type: 'image' })).slice(startIndex, endIndex);
+    
+    console.log(this.displayedImages);
+  }
+
+  updateAudioMedia() {
+    // Applying pagination without modifying the audio source array
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.displayedAudios = this.audios.map(item => ({ ...item, type: 'audio' })).slice(startIndex, endIndex);
+    
+    console.log(this.displayedAudios);
   }
 
   updateDisplayedMedia() {
-    // Apply filters and pagination
-    //   let filteredImages = this.applyFilters(this.images);
-
     // Interleave images and audios
     const combinedResults = [];
     const maxLength = Math.max(this.images.length, this.audios.length);
@@ -123,76 +184,53 @@ export class HomeComponent implements OnInit{
     
     console.log(this.displayedMedia);
   }
-  
-
-  applyFilters(data: any[]): any[] {
-    // This is a placeholder function - implement actual filtering logic based on your data structure
-    let result = [...data];
-    
-    if (this.selectedMediaType) {
-      // Filter by media type logic
-      // Example: result = result.filter(item => item.type === this.selectedMediaType);
-    }
-    
-    if (this.selectedLicenseType) {
-      // Filter by license type logic
-      // Example: result = result.filter(item => item.license === this.selectedLicenseType);
-    }
-    
-    // Apply media-specific filters
-    if (this.selectedMediaType === 'image') {
-      if (this.imageFilters.imgFiletype) {
-        // Example: result = result.filter(item => item.imgFiletype === this.imageFilters.imgFiletype);
-      }
-      if (this.imageFilters.imgCategory) {
-        // Example: result = result.filter(item => item.imgCategory === this.imageFilters.imgCategory);
-      }
-    } else if (this.selectedMediaType === 'audio') {
-      // Apply audio filters
-      if (this.audioFilters.duration) {
-        // Filter by duration
-      }
-      if (this.audioFilters.audCategory) {
-        // Filter by category
-      }
-    }
-    
-    // Apply sorting
-    if (this.selectedSortBy) {
-      // Example sorting logic
-      switch (this.selectedSortBy) {
-        case 'newest':
-          // Sort by newest
-          // result.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-          break;
-        case 'oldest':
-          // Sort by oldest
-          // result.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-          break;
-        default:
-          // Default to relevance (no sorting or custom relevance algorithm)
-          break;
-      }
-    }
-    
-    return result;
-  }
 
   nextPage() {
-    if (this.currentPage * this.itemsPerPage < Math.max(this.images.length, this.audios.length)) {
-      this.currentPage++;
-      this.updateDisplayedMedia();
+    if (this.showFilters && this.selectedMediaType) {
+      if (this.selectedMediaType === "image") {
+        if (this.currentPage * this.itemsPerPage < this.images.length) {
+          this.currentPage++;
+          this.updateImageMedia();
+          this.displayedMedia = this.displayedImages;
+        }
+      }
+      else if (this.selectedMediaType === "audio") {
+        if (this.currentPage * this.itemsPerPage < this.audios.length) {
+          this.currentPage++;
+          this.updateAudioMedia();
+          this.displayedMedia = this.displayedAudios;
+        }
+      }
+    }
+    else {
+      // Combined view
+      if (this.currentPage * this.itemsPerPage < Math.max(this.images.length, this.audios.length) * 2) {
+        this.currentPage++;
+        this.updateDisplayedMedia();
+      }
     }
   }
-  
+
   prevPage() {
     if (this.currentPage > 1) {
       this.currentPage--;
-      this.updateDisplayedMedia();
+
+      if (this.showFilters && this.selectedMediaType) {
+        if (this.selectedMediaType === "image") {
+          this.updateImageMedia();
+          this.displayedMedia = this.displayedImages;
+        }
+        else if (this.selectedMediaType === "audio") {
+          this.updateAudioMedia();
+          this.displayedMedia = this.displayedAudios;
+        }
+      }
+      else {
+        this.updateDisplayedMedia();
+      }
     }
   }
 
-  // New filter methods
   toggleFilters(): void {
     if (!this.userName || this.userName === 'undefined' || this.userName === '') {
       this.showToast();
@@ -205,7 +243,6 @@ export class HomeComponent implements OnInit{
     // Reset all filter values
     this.selectedMediaType = '';
     this.selectedLicenseType = '';
-    this.selectedSortBy = '';
     
     // Reset media-specific filters
     this.imageFilters = {
@@ -221,9 +258,9 @@ export class HomeComponent implements OnInit{
     // Update filter status
     this.updateFilterStatus();
     
-    // Apply the filters (which now have been cleared)
-    this.currentPage = 1;
-    this.updateDisplayedMedia();
+    // Important: Turn off filters mode and perform a new search
+    this.showFilters = false;
+    this.onSearch(); // This will fetch both types of media again
   }
   
   onMediaTypeChange(): void {
@@ -257,9 +294,6 @@ export class HomeComponent implements OnInit{
       case 'licenseType':
         this.selectedLicenseType = '';
         break;
-      case 'sortBy':
-        this.selectedSortBy = 'relevance';
-        break;
       // Image filter cases
       case 'imgFiletype':
         this.imageFilters.imgFiletype = '';
@@ -289,7 +323,6 @@ export class HomeComponent implements OnInit{
     this.hasActiveFilters = !!(
       this.selectedMediaType || 
       this.selectedLicenseType || 
-      this.selectedSortBy !== 'relevance' ||
       // Image filters
       (this.selectedMediaType === 'image' && (
         this.imageFilters.imgFiletype || 

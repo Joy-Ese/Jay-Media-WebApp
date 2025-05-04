@@ -1,19 +1,22 @@
-import { Component } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
+import { Component, Inject, inject, OnInit } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
-import { MatTableModule } from '@angular/material/table';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import { CommonModule } from '@angular/common';
+import { ToastrService } from 'ngx-toastr';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { AuthService } from '../../services/auth.service';
 
 interface DeletedSearchItem {
-  id: number;
-  searchTerm: string;
-  date: Date;
+  searchId: number;
+  searchQuery: string;
   category: string;
+  timeStamp: Date;
 } 
 
 @Component({
@@ -31,33 +34,55 @@ interface DeletedSearchItem {
   templateUrl: './deleted-searches-dialog.component.html',
   styleUrl: './deleted-searches-dialog.component.css'
 })
-export class DeletedSearchesDialogComponent {
+export class DeletedSearchesDialogComponent implements OnInit{
+  baseUrl : string = "http://localhost:5090";
 
-  displayedColumns: string[] = ['searchTerm', 'date', 'category', 'actions'];
+  private toastr = inject(ToastrService);
 
-  deletedSearches: DeletedSearchItem[] = [
-    { 
-      id: 1, 
-      searchTerm: 'Old Nature Photos', 
-      date: new Date('2024-03-10'), 
-      category: 'Images' 
-    },
-    { 
-      id: 2, 
-      searchTerm: 'Vintage Music', 
-      date: new Date('2024-03-05'), 
-      category: 'Audio' 
-    }
-  ];
+  dataSource!: MatTableDataSource<any>;
+
+  displayedColumns: string[] = ['searchQuery', 'timeStamp', 'category', 'actions'];
 
   constructor(
+    private authService: AuthService,
+    private http: HttpClient,
+    @Inject(MAT_DIALOG_DATA) public data: any[],
     public dialogRef: MatDialogRef<DeletedSearchesDialogComponent>
   ) { }
 
-  restoreSearch(search: DeletedSearchItem): void {
-    // Implement search restoration logic
-    console.log('Restoring search:', search);
-    this.dialogRef.close(search);
+  ngOnInit(): void {
+    this.dataSource = new MatTableDataSource(this.data);
+  }
+
+  restoreSearch(search: DeletedSearchItem) {
+    var token = this.authService.getToken();
+
+    const headers = new HttpHeaders({
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    });
+
+    console.log(search.searchId);
+    this.http.post<any>(`${this.baseUrl}/api/Search/RestoreOrDelete?action=R&searchId=${search.searchId}`, null, {headers: headers})
+    .subscribe({
+      next: (res) => {
+        console.log(res);
+        if (res.status) {
+          this.toastr.success('Search Query successfully restored!', 'Success');
+          setTimeout(() => {
+            location.reload();;
+          }, 3000);
+        }else {
+          this.toastr.error('Error occured. Unable to perform action!', 'Error');
+          setTimeout(() => {
+            location.reload();;
+          }, 3000);
+        }
+      },
+      error: (err) => {
+        console.log(err);
+      },
+    });
   }
 
   onCancel(): void {

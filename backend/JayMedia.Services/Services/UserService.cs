@@ -26,6 +26,7 @@ public class UserService : IUser
   {
     try 
     {
+      // Get user logged in
       int userID;
       if (_httpContextAccessor.HttpContext == null)
       {
@@ -49,6 +50,43 @@ public class UserService : IUser
     {
       _logger.LogError($"AN ERROR OCCURRED... => {ex.Message}");
       return new UserDetailsModel();
+    }
+  }
+
+// Edit User Details
+  public async Task<ResponseModel> EditUserDetails(ProfileDto request) 
+  {
+    ResponseModel response = new();
+    try 
+    {
+      // Get user logged in
+      int userID;
+      if (_httpContextAccessor.HttpContext == null)
+      {
+        response.status = false;
+        response.message = "User is not logged in";
+        return response;
+      }
+
+      userID = Convert.ToInt32(_httpContextAccessor.HttpContext.User?.FindFirst(CustomClaims.UserId)?.Value);
+
+      var userDetails = await _context.Users.Where(x => x.Id == userID).FirstOrDefaultAsync();
+      if (userDetails == null) return new ResponseModel{status = false, message = "User not found"};
+
+      userDetails.FirstName = request.firstname;
+      userDetails.LastName = request.lastname;
+      await _context.SaveChangesAsync();
+
+      response.status = true;
+      response.message = "Profile successfully updated";
+      return response;
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError($"AN ERROR OCCURRED... => {ex.Message}");
+      response.status = false;
+      response.message = "An exception occured";
+      return response;
     }
   }
 
