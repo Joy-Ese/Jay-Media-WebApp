@@ -18,30 +18,18 @@ try
   var builder = WebApplication.CreateBuilder(args);
 
   // Add CORS policy
+  var allowedOrigins = builder.Configuration["AllowedOrigins"]?.Split(",") ?? new[] { "http://localhost:4200" };
+
   builder.Services.AddCors(options => {
     options.AddPolicy("_myAllowSpecificOrigins",
-    new CorsPolicyBuilder()
-    .WithOrigins("http://localhost:4200")
-    .AllowAnyHeader()
-    .AllowAnyMethod()
-    .SetIsOriginAllowed(origin => true)
-    .AllowCredentials()
-    .Build());
+      new CorsPolicyBuilder()
+        .WithOrigins(allowedOrigins) // Use the environment variable here
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .SetIsOriginAllowed(origin => true) // This actually allows any origin anyway
+        .AllowCredentials()
+        .Build());
   });
-
-  var policyName = "_myAllowSpecificOrigins";
-  builder.Services.AddCors(options =>
-    {
-      options.AddPolicy(name: policyName,
-        policy =>
-        {
-          policy.WithOrigins("http://localhost:4200")
-          .WithMethods("GET", "POST", "PUT", "DELETE")
-          .AllowAnyHeader();
-        }
-      );
-    }
-  );
 
   // NLog: Setup NLog for Dependency injection
   builder.Logging.ClearProviders();
@@ -131,7 +119,7 @@ try
   app.UseSwagger();
   app.UseSwaggerUI();
 
-  app.UseCors(policyName);
+  app.UseCors("_myAllowSpecificOrigins");
 
   app.UseHttpsRedirection();
 

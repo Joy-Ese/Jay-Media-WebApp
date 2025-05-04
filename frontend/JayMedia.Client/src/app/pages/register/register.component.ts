@@ -1,5 +1,5 @@
 import { CommonModule, DOCUMENT } from '@angular/common';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Component, inject, Inject, OnInit } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -60,7 +60,6 @@ export class RegisterComponent implements OnInit{
 
   showToast() {
     this.toastr.success('Registration successful!', 'Success');
-    // Other types: error(), warning(), info()
   }
 
   onSubmit(registerData: [key: string]) {
@@ -77,19 +76,26 @@ export class RegisterComponent implements OnInit{
       next: (res) => {
         console.log(res);
         const decryptedResponse = this.encryptionService.decryptData(res);
-        console.log('Decrypted Response:', decryptedResponse);
-        if (!decryptedResponse.status) {
-          this.status = decryptedResponse.status;
-          this.respMsg = decryptedResponse.message;
+        console.log(decryptedResponse);
+        let decryptedResponseObject = JSON.parse(decryptedResponse);
+        if (!decryptedResponseObject.status) {
+          this.status = decryptedResponseObject.status;
+          this.respMsg = decryptedResponseObject.message;
         }
-        console.log(decryptedResponse.message);
-        if (this.status == true) {
-          this.showToast()
-          setTimeout(() => {this.domDocument.location.replace("/login")}, 4000);
+
+        if (decryptedResponseObject.status == true) {
+          this.showToast();
+          setTimeout(() => {this.domDocument.location.replace("/login")}, 1000);
         }
       },
-      error: (err) => {
-        console.log(err);
+      error: (error: HttpErrorResponse) => {
+        console.log('Error status:', error.status);  // 👈 this gives you 200
+        console.log('Error details:', error);
+
+        if (error.status === 200) {
+          this.showToast();
+          setTimeout(() => {this.domDocument.location.replace("/login")}, 1000);
+        }
       },
     });
   }
