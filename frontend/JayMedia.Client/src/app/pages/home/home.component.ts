@@ -66,8 +66,6 @@ export class HomeComponent implements OnInit{
     if (typeof window !== 'undefined' && localStorage) {
       this.userName = localStorage.getItem("userId");
       console.log(this.userName);
-    } else {
-      console.warn('localStorage is not available.');
     }
   }
 

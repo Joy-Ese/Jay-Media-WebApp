@@ -7,6 +7,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { provideToastr } from 'ngx-toastr';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { authInterceptor } from './interceptors/auth.interceptor';
+import { loaderInterceptor } from './interceptors/loader.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -19,6 +20,6 @@ export const appConfig: ApplicationConfig = {
       positionClass: 'toast-top-right',
       preventDuplicates: true,
     }),
-    provideHttpClient(withFetch(), withInterceptors([authInterceptor]))
+    provideHttpClient(withFetch(), withInterceptors([authInterceptor, loaderInterceptor]))
   ]
 };

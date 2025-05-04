@@ -123,20 +123,26 @@ export class ManageSearchComponent implements OnInit{
     });
 
     console.log(search.searchId);
-    this.http.put<any>(`${this.baseUrl}/api/Search/RestoreOrDelete?action=D&searchId=${search.searchId}`, {headers: headers})
+    this.http.post<any>(`${this.baseUrl}/api/Search/RestoreOrDelete?action=D&searchId=${search.searchId}`, null, {headers: headers})
     .subscribe({
       next: (res) => {
         console.log(res);
         if (res.status) {
           this.toastr.success('Search Query successfully deleted!', 'Success');
+          setTimeout(() => {
+            location.reload();;
+          }, 1500);
+        }else {
+          this.toastr.error('Error occured. Unable to perform action!', 'Error');
+          setTimeout(() => {
+            location.reload();;
+          }, 1500);
         }
-        this.toastr.error('Error occured. Unable to perform action!', 'Error');
       },
       error: (err) => {
         console.log(err);
       },
     });
-
   }
 
   openDeletedSearchesDialog(): void {

@@ -55,16 +55,35 @@ export class DeletedSearchesDialogComponent implements OnInit{
     this.dataSource = new MatTableDataSource(this.data);
   }
 
-  showToast() {
-    // this.toastr.success('Operation successful!', 'Success');
-    this.toastr.error('Please login to access filter feature!', 'Error');
-    // Other types: error(), warning(), info()
-  }
+  restoreSearch(search: DeletedSearchItem) {
+    var token = this.authService.getToken();
 
-  restoreSearch(search: DeletedSearchItem): void {
-    // Implement search restoration logic
-    console.log('Restoring search:', search);
-    this.dialogRef.close(search);
+    const headers = new HttpHeaders({
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    });
+
+    console.log(search.searchId);
+    this.http.post<any>(`${this.baseUrl}/api/Search/RestoreOrDelete?action=R&searchId=${search.searchId}`, null, {headers: headers})
+    .subscribe({
+      next: (res) => {
+        console.log(res);
+        if (res.status) {
+          this.toastr.success('Search Query successfully restored!', 'Success');
+          setTimeout(() => {
+            location.reload();;
+          }, 3000);
+        }else {
+          this.toastr.error('Error occured. Unable to perform action!', 'Error');
+          setTimeout(() => {
+            location.reload();;
+          }, 3000);
+        }
+      },
+      error: (err) => {
+        console.log(err);
+      },
+    });
   }
 
   onCancel(): void {

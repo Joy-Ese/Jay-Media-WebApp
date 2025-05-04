@@ -60,7 +60,7 @@ namespace JayMedia.Api.Controllers
       return Ok(result);
     }
 
-    [HttpPut("RestoreOrDelete")]
+    [HttpPost("RestoreOrDelete")]
     [Authorize]
     public async Task<IActionResult> RestoreOrDelete(string action, int searchId)
     {

@@ -1,4 +1,4 @@
-import { HttpInterceptorFn } from '@angular/common/http';
+import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError } from 'rxjs/operators';
@@ -11,16 +11,25 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error) => {
-      if (error.status === 401) {
-        // Show session expired message
-        toastr.warning('Your session is about to expire.', 'Session Timeout');
+      const currentUrl = router.url;
+      const isLoginPage = currentUrl.includes('/login') || currentUrl.includes('/register');
 
-        // Clear local storage
+      if (
+        error instanceof HttpErrorResponse &&
+        error.status === 401 &&
+        !isLoginPage
+      ) {
+        // Clear sensitive data
+        localStorage.removeItem("token");
+        localStorage.removeItem("loginResp");
+        localStorage.removeItem("userDetails");
         localStorage.clear();
 
-        // Redirect to login page
+        toastr.warning('Your session has expired. Please sign in again.', 'Session Timeout');
+
+        // Redirect and refresh
         router.navigate(['/login']);
-        toastr.success('Your session has expired. Please log in again.', 'Success');
+        setTimeout(() => window.location.reload(), 300);
       }
 
       return throwError(() => error);

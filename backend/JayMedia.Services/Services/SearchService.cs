@@ -364,7 +364,7 @@ public class SearchService : ISearch
     }
   }
 
-// get ACtive Searches
+// get Active Searches
   public async Task<List<SearchObj>> GetActiveSearches() 
   {
     try 
